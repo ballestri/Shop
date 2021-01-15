@@ -252,7 +252,6 @@ public class CaricoPane extends AContainer implements ActionListener {
         table.getColumnModel().getColumn(0).setMinWidth(0);
         table.getColumnModel().getColumn(0).setMaxWidth(0);
         table.getColumnModel().getColumn(0).setWidth(0);
-
         table.getColumnModel().getColumn(1).setMinWidth(178);
         table.getColumnModel().getColumn(2).setMinWidth(80);
         table.getColumnModel().getColumn(3).setMinWidth(260);

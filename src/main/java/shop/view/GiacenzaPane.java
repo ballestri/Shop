@@ -206,9 +206,8 @@ public class GiacenzaPane extends AContainer implements ActionListener {
 
     void refreshTable() {
 
-        for (int i = tableModel.getRowCount() - 1; i >= 0; i--) {
-            tableModel.removeRow(i);
-        }
+        tableModel.getDataVector().removeAllElements();
+        tableModel.fireTableDataChanged();
 
         for (Giacenza giacenza : getGiacenzaDbItems()) {
             tableModel.addRow(new String[]{giacenza.getCodice(), giacenza.getDescrizione(), String.valueOf(giacenza.getGiacenza()), String.valueOf(giacenza.getScorta()), String.valueOf(giacenza.getRiordino()), String.valueOf(giacenza.getTotcarico()), String.valueOf(giacenza.getTotscarico()), giacenza.getUnita()});

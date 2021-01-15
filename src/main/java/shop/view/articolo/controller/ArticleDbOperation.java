@@ -180,8 +180,8 @@ public class ArticleDbOperation {
                 list_articles.add(article);
             }
             con.close();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
         }
         table.validate();
         table.repaint();

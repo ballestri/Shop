@@ -565,8 +565,8 @@ public class ArticoloPane extends AContainer implements ActionListener {
                 lista.add(rs.getString(attribute));
             stmt.close();
             con.close();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
         }
         return lista;
 

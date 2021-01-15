@@ -1,6 +1,5 @@
 package shop.view;
 
-
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JTextFieldDateEditor;
 import shop.controller.ComboBoxFilterDecorator;
@@ -47,7 +46,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
     public static JTable table;
     JScrollPane scrollPane;
 
-    protected JButton btn_search, btn_refresh;
+    protected JButton btn_search, btn_refresh, btn_refresh_product;
     public static JDateChooser beginChooser, endChooser;
     private TableRowSorter<TableModel> sorter;
 
@@ -69,19 +68,16 @@ public class MovimentiPane extends AContainer implements ActionListener {
         toolbar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 10));
         JLabel lblFormName = new JLabel("Movimentazioni prodotti");
         lblFormName.setForeground(Color.WHITE);
-        lblFormName.setFont(new Font("HelveticaNeue", Font.BOLD, 28));
+        lblFormName.setFont(new Font(FONT_FAMILY, Font.BOLD, 28));
         toolbar.setBackground(new Color(128, 0, 128));
         lblFormName.setPreferredSize(new Dimension(360, 40));
         toolbar.add(lblFormName, BorderLayout.CENTER);
 
-
         // I pulsanti delle funzionalita'
         internPane = new JPanel();
         wrapperPane = new JPanel();
-
         productPane = new JPanel();
         movimentPaneWrapper = new JPanel();
-
         movimentPane = new JPanel();
         searchPane = new RoundedPanel();
 
@@ -132,17 +128,40 @@ public class MovimentiPane extends AContainer implements ActionListener {
         titleProductPane.setPreferredSize(new Dimension(450, 70));
         infoProductPane.setPreferredSize(new Dimension(450, 500));
 
+        btn_refresh_product = new JButton(new ImageIcon(requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/refresh.png"))));
+        btn_refresh_product.setPreferredSize(new Dimension(48, 48));
+        btn_refresh_product.setContentAreaFilled(false);
+        btn_refresh_product.setOpaque(false);
 
-        titleProductPane.setLayout(new GridBagLayout());
         JLabel lblFormName = new JLabel("Prodotto in magazzino");
-        lblFormName.setFont(new Font("HelveticaNeue", Font.BOLD, 18));
-        titleProductPane.add(lblFormName);
+        lblFormName.setFont(new Font(FONT_FAMILY, Font.BOLD, 18));
+        titleProductPane.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1;
+        c.weighty = 1;
+
+        c.gridx = 0;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 20, 2, 0);
+        titleProductPane.add(btn_refresh_product, c);
+
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridx = 1;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 0, 2, 0);
+        titleProductPane.add(lblFormName, c);
+
         productPane.add(titleProductPane);
 
         // Parte informativa
         lblCodice = new JLabel("Codice");
         lblCodice.setFont(font);
-
 
         ArrayList<String> items = DBUtils.getListCodici();
         items.add(0, null);
@@ -152,6 +171,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
         jcbCodice.setBorder(new LineBorder(Color.BLACK));
         jcbCodice.setFont(font);
         jcbCodice.addActionListener(this);
+        jcbCodice.setMaximumRowCount(5);
 
         lblDescrizione = new JLabel("Descrizione");
         lblDescrizione.setFont(font);
@@ -180,7 +200,6 @@ public class MovimentiPane extends AContainer implements ActionListener {
         jtfPosizione.setBorder(new LineBorder(Color.BLACK));
         jtfPosizione.setFont(font);
 
-
         lblUnita = new JLabel("Unita' di misura");
         lblUnita.setFont(font);
 
@@ -189,7 +208,6 @@ public class MovimentiPane extends AContainer implements ActionListener {
         jtfUnita.setBackground(DesktopRender.JTF_COLOR);
         jtfUnita.setBorder(new LineBorder(Color.BLACK));
         jtfUnita.setFont(font);
-
 
         lblPrezzo = new JLabel("Prezzo");
         lblPrezzo.setFont(font);
@@ -341,13 +359,15 @@ public class MovimentiPane extends AContainer implements ActionListener {
         infoProductPane.add(jtfProvenienza, gc);
 
         productPane.add(infoProductPane);
+
+        btn_refresh_product.addActionListener(e -> refreshProduct());
+
     }
 
     void initMovimentPane() {
 
         movimentPaneWrapper.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 15));
         movimentPaneWrapper.setBackground(wrapperPane.getBackground());
-
 
         searchPane.setPreferredSize(new Dimension(650, 70));
         searchPane.setLayout(new GridBagLayout());
@@ -435,6 +455,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
 
     void buildProductDetails() {
         String[] header = {"Data", "Carico", "Scarico", "Fornitore/Cliente"};
+
         tableModel = new DefaultTableModel(new Object[][]{}, header) {
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -454,9 +475,9 @@ public class MovimentiPane extends AContainer implements ActionListener {
             }
         };
 
+        tableHeader = table.getTableHeader();
         DefaultTableCellRenderer renderer = (DefaultTableCellRenderer) table.getDefaultRenderer(Object.class);
         table.setDefaultRenderer(Object.class, renderer);
-        tableHeader = table.getTableHeader();
         tableHeader.setBackground(new Color(39, 55, 70));
         tableHeader.setForeground(Color.WHITE);
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
@@ -545,6 +566,25 @@ public class MovimentiPane extends AContainer implements ActionListener {
         endChooser.setCalendar(null);
         table.setRowSorter(sorter);
         sorter.setRowFilter(null);
+    }
+
+    public void refreshProduct() {
+
+        Articolo articolo = DBUtils.getProduct(String.valueOf(jcbCodice.getSelectedItem()));
+        jtfDescrizione.setText(articolo.getDescrizione());
+        jtfCategoria.setText(articolo.getCategoria());
+        jtfPosizione.setText(articolo.getPosizione());
+        jtfUnita.setText(articolo.getUnita());
+        jtfPrezzo.setText(String.valueOf(articolo.getPrezzo()).concat(" €"));
+        jtfScorta.setText(String.valueOf(articolo.getScorta()));
+        jtfProvenienza.setText(articolo.getProvenienza());
+        jtfDescrizione.setEditable(false);
+        jtfCategoria.setEditable(false);
+        jtfPosizione.setEditable(false);
+        jtfUnita.setEditable(false);
+        jtfPrezzo.setEditable(false);
+        jtfScorta.setEditable(false);
+        jtfProvenienza.setEditable(false);
     }
 
     private static boolean codiceFilter(String codice, String textToFilter) {

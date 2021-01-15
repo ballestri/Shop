@@ -1,9 +1,7 @@
 package shop.view;
 
 import org.apache.ibatis.jdbc.ScriptRunner;
-
 import shop.db.ConnectionManager;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -18,7 +16,6 @@ public class DesktopPane extends JFrame {
 
 
     public DesktopPane() {
-
         setTitle("Shop Platform v. 1.0");
         setDefaultCloseOperation(HIDE_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -44,41 +41,34 @@ public class DesktopPane extends JFrame {
     }
 
     public static void main(String... args) {
+        setDefaultLookAndFeelDecorated(true);
         (new DesktopPane()).setVisible(true);
 
-        Properties prop = new Properties();
         try {
-            prop.load(new BufferedReader(new InputStreamReader(Objects.requireNonNull(ConnectionManager.class.getClassLoader().getResourceAsStream("config/config.properties")))));
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-
-        try {
-
             Connection con = (new ConnectionManager()).getConnection();
             ScriptRunner sr = new ScriptRunner(con);
             BufferedReader is = new BufferedReader(
                     new InputStreamReader(Objects.requireNonNull(DesktopPane.class.getClassLoader().getResourceAsStream("config/shop.sql"))));
             sr.runScript(is);
             is.close();
-        } catch (IOException e) {
+            con.close();
+        } catch (IOException | SQLException e) {
             e.printStackTrace();
         }
 
 
         // Connessione al DB
         try {
-            Connection con = (new ConnectionManager()).getConnection();
+            ConnectionManager connectionManager= new ConnectionManager();
+            Connection con = connectionManager.getConnection();
             Statement stmt = con.createStatement();
-            String QUERY="INSERT INTO Credentials VALUES ('" + prop.getProperty("db.username") + "','" + prop.getProperty("db.password") + "')";
+            String QUERY="INSERT INTO Credentials VALUES ('" + connectionManager.getUsername() + "','" + connectionManager.getPassword() + "')";
             stmt.executeUpdate(QUERY);
             stmt.close();
             con.close();
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }
-
     }
 
 }
