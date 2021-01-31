@@ -2,7 +2,6 @@ package shop.view;
 
 import shop.controller.article.RendererHighlighted;
 import shop.controller.article.RowFilterUtil;
-import shop.model.Giacenza;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
 
@@ -19,7 +18,7 @@ import java.util.stream.IntStream;
 
 import static java.util.Objects.requireNonNull;
 import static shop.utils.DesktopRender.FONT_FAMILY;
-import static shop.view.giacenza.controller.GiacenzaDbOperation.getGiacenzaDbItems;
+import static shop.dao.GiacenzaDAO.getAllGiacenza;
 
 public class GiacenzaPane extends AContainer implements ActionListener {
 
@@ -123,7 +122,7 @@ public class GiacenzaPane extends AContainer implements ActionListener {
             }
         };
 
-        getGiacenzaDbItems().forEach(giacenza -> tableModel.addRow(new String[]{giacenza.getCodice(), giacenza.getDescrizione(), String.valueOf(giacenza.getGiacenza()), String.valueOf(giacenza.getScorta()), String.valueOf(giacenza.getRiordino()), String.valueOf(giacenza.getTotcarico()), String.valueOf(giacenza.getTotscarico()), giacenza.getUnita()}));
+        getAllGiacenza().forEach(giacenza -> tableModel.addRow(new String[]{giacenza.getCodice(), giacenza.getDescrizione(), String.valueOf(giacenza.getGiacenza()), String.valueOf(giacenza.getScorta()), String.valueOf(giacenza.getRiordino()), String.valueOf(giacenza.getTotcarico()), String.valueOf(giacenza.getTotscarico()), giacenza.getUnita()}));
 
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -135,10 +134,12 @@ public class GiacenzaPane extends AContainer implements ActionListener {
                     returnComp.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
                 }
 
-                if (column == 2 || column == 3 || column == 4 || column == 5 || column == 6) {
+                if (column>=1 && column<=6) {
                     ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
                     returnComp.setBackground((row % 2 == 0 ? DesktopRender.JTF_COLOR : Color.WHITE));
+                } else if (column == 0) {
                     returnComp.setFont(font);
+                    ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
                 } else
                     ((JLabel) returnComp).setHorizontalAlignment(JLabel.LEFT);
                 return returnComp;
@@ -192,7 +193,8 @@ public class GiacenzaPane extends AContainer implements ActionListener {
             setFont(font);
             setOpaque(true);
             setForeground(Color.WHITE);
-            setBackground(new Color(128, 0, 128));
+            setBackground(new Color(88, 24, 69));
+            setHorizontalAlignment(JLabel.CENTER);
             setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         }
 
@@ -205,13 +207,9 @@ public class GiacenzaPane extends AContainer implements ActionListener {
     }
 
     void refreshTable() {
-
         tableModel.getDataVector().removeAllElements();
         tableModel.fireTableDataChanged();
-
-        for (Giacenza giacenza : getGiacenzaDbItems()) {
-            tableModel.addRow(new String[]{giacenza.getCodice(), giacenza.getDescrizione(), String.valueOf(giacenza.getGiacenza()), String.valueOf(giacenza.getScorta()), String.valueOf(giacenza.getRiordino()), String.valueOf(giacenza.getTotcarico()), String.valueOf(giacenza.getTotscarico()), giacenza.getUnita()});
-        }
+        getAllGiacenza().forEach(a -> tableModel.addRow(new String[]{a.getCodice(), a.getDescrizione(), String.valueOf(a.getGiacenza()), String.valueOf(a.getScorta()), String.valueOf(a.getRiordino()), String.valueOf(a.getTotcarico()), String.valueOf(a.getTotscarico()), a.getUnita()}));
         table.revalidate();
         table.repaint();
     }

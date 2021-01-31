@@ -4,8 +4,8 @@ import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JTextFieldDateEditor;
 import shop.controller.ComboBoxFilterDecorator;
 import shop.controller.CustomComboRenderer;
-import shop.db.DBUtils;
-import shop.model.Articolo;
+import shop.dao.DAOUtils;
+import shop.entity.Articolo;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
 
@@ -27,11 +27,10 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static javax.swing.JOptionPane.showMessageDialog;
+import static shop.utils.DesktopRender.DATE_FORMAT;
 import static shop.utils.DesktopRender.FONT_FAMILY;
 
 public class MovimentiPane extends AContainer implements ActionListener {
-
-    private static final String DATE_FORMAT = "dd/MM/yyyy";
 
     // pannello interno
     protected JPanel internPane, wrapperPane, productPane, movimentPaneWrapper, movimentPane;
@@ -163,7 +162,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
         lblCodice = new JLabel("Codice");
         lblCodice.setFont(font);
 
-        ArrayList<String> items = DBUtils.getListCodici();
+        ArrayList<String> items = DAOUtils.getListCodici();
         items.add(0, null);
         jcbCodice = new JComboBox<>(items.toArray(new String[0]));
         ComboBoxFilterDecorator<String> decorate = ComboBoxFilterDecorator.decorate(jcbCodice, MovimentiPane::codiceFilter);
@@ -344,13 +343,11 @@ public class MovimentiPane extends AContainer implements ActionListener {
         gc.anchor = GridBagConstraints.LINE_START;
         infoProductPane.add(jtfPrezzo, gc);
 
-
         gc.gridx = 1;
         gc.gridy = 6;
 
         gc.anchor = GridBagConstraints.LINE_START;
         infoProductPane.add(jtfScorta, gc);
-
 
         gc.gridx = 1;
         gc.gridy = 7;
@@ -361,7 +358,6 @@ public class MovimentiPane extends AContainer implements ActionListener {
         productPane.add(infoProductPane);
 
         btn_refresh_product.addActionListener(e -> refreshProduct());
-
     }
 
     void initMovimentPane() {
@@ -428,11 +424,11 @@ public class MovimentiPane extends AContainer implements ActionListener {
 
         jcbCodice.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-                Articolo articolo = DBUtils.getProduct(String.valueOf(jcbCodice.getSelectedItem()));
+                Articolo articolo = DAOUtils.getProduct(String.valueOf(jcbCodice.getSelectedItem()));
                 jtfDescrizione.setText(articolo.getDescrizione());
-                jtfCategoria.setText(articolo.getCategoria());
-                jtfPosizione.setText(articolo.getPosizione());
-                jtfUnita.setText(articolo.getUnita());
+                jtfCategoria.setText(articolo.getCategoria().getCategoria());
+                jtfPosizione.setText(articolo.getPosizione().getPosizione());
+                jtfUnita.setText(articolo.getUnita().getUnita());
                 jtfPrezzo.setText(String.valueOf(articolo.getPrezzo()).concat(" €"));
                 jtfScorta.setText(String.valueOf(articolo.getScorta()));
                 jtfProvenienza.setText(articolo.getProvenienza());
@@ -454,7 +450,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
     }
 
     void buildProductDetails() {
-        String[] header = {"Data", "Carico", "Scarico", "Fornitore/Cliente"};
+        String[] header = {"Data", "Carico", "Scarico", "Fornitore"};
 
         tableModel = new DefaultTableModel(new Object[][]{}, header) {
             public boolean isCellEditable(int row, int column) {
@@ -570,11 +566,11 @@ public class MovimentiPane extends AContainer implements ActionListener {
 
     public void refreshProduct() {
 
-        Articolo articolo = DBUtils.getProduct(String.valueOf(jcbCodice.getSelectedItem()));
+        Articolo articolo = DAOUtils.getProduct(String.valueOf(jcbCodice.getSelectedItem()));
         jtfDescrizione.setText(articolo.getDescrizione());
-        jtfCategoria.setText(articolo.getCategoria());
-        jtfPosizione.setText(articolo.getPosizione());
-        jtfUnita.setText(articolo.getUnita());
+        jtfCategoria.setText(articolo.getCategoria().getCategoria());
+        jtfPosizione.setText(articolo.getPosizione().getPosizione());
+        jtfUnita.setText(articolo.getUnita().getUnita());
         jtfPrezzo.setText(String.valueOf(articolo.getPrezzo()).concat(" €"));
         jtfScorta.setText(String.valueOf(articolo.getScorta()));
         jtfProvenienza.setText(articolo.getProvenienza());
@@ -596,15 +592,13 @@ public class MovimentiPane extends AContainer implements ActionListener {
 
     void loadMovimenti(String codice) {
         if (!codice.isEmpty()) {
-            DBUtils.getAllMoviments(codice).forEach(ps -> tableModel.addRow(new String[]{(new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(ps.getData()), String.valueOf(ps.getCarico()), String.valueOf(ps.getScarico()), ps.getFornitore()}));
+            DAOUtils.getAllMoviments(codice).forEach(ps -> tableModel.addRow(new String[]{(new SimpleDateFormat(DATE_FORMAT)).format(ps.getData()), String.valueOf(ps.getCarico()), String.valueOf(ps.getScarico()), ps.getFornitore()}));
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
     }
-
-
 }
 
 

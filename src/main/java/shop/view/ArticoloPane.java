@@ -1,29 +1,30 @@
 package shop.view;
 
 import shop.controller.article.*;
-import shop.db.ConnectionManager;
-import shop.model.*;
+import shop.entity.*;
 import shop.utils.*;
-import shop.view.articolo.CategoryPane;
-import shop.view.articolo.PositionPane;
-import shop.view.articolo.UnitPane;
+import shop.view.articolo.CategoryView;
+import shop.view.articolo.PositionView;
+import shop.view.articolo.UnitView;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.*;
 import java.text.*;
 import java.util.*;
-import java.util.stream.*;
 
-import static shop.view.articolo.controller.ArticleDbOperation.*;
-import static shop.utils.DesktopRender.FONT_FAMILY;
+import static shop.dao.ArticleDAO.*;
+import static shop.dao.CategoriaDAO.getAllCategories;
+import static shop.dao.PositionDAO.getAllPosizione;
+import static shop.dao.UnitDAO.getAllUnita;
+import static shop.utils.DesktopRender.*;
 
 
 public class ArticoloPane extends AContainer implements ActionListener {
 
-    private static final Color JTF_COLOR = new Color(169, 204, 227 );
+    private static final Color JTF_COLOR = new Color(169, 204, 227);
     public static JComboBox<String> jcbCategoria, jcbUnita, jcbPosizione;
     protected Font font;
     // la JToolbar
@@ -31,18 +32,18 @@ public class ArticoloPane extends AContainer implements ActionListener {
     protected JButton btn_prima;
     protected JButton btn_close;
     // Informazioni sull'articolo
-    protected JLabel lblCodice, lblDescrizione, lblCategoria, lblPosizione, lblUnita, lblPrezzo, lblScorta, lblProvenienza;
+    public static JLabel lblCodice, lblDescrizione, lblCategoria, lblPosizione, lblUnita, lblPrezzo, lblScorta, lblProvenienza;
     public static JTextField jtfCodice, jtfDescrizione, jtfProvenienza;
 
-    protected JTextField filterField;
+    public JTextField filterField;
     public static JFormattedTextField jtfCurrency;
     public static JSpinner jspScorta;
     // Pannello delle funzionalita'
     JPanel internPanel, wrapperPane;
-    RoundedPanel articlePane, informationPane;
+    public static RoundedPanel articlePane;
     JButton btn_list_categoria, btn_list_posizione, btn_list_unita, btn_nuovo, btn_aggiorna, btn_elimina, btn_salva;
     JScrollPane scrollPane;
-    RoundedPanel actionPaneWrapper;
+    RoundedPanel actionPaneWrapper, informationPane;
     // Creazione della tabella che contiene le categorie
     public static DefaultTableModel tableModel;
     JTableHeader tableHeader;
@@ -100,9 +101,9 @@ public class ArticoloPane extends AContainer implements ActionListener {
         internPanel = new JPanel();
         articlePane = new RoundedPanel();
 
-        btn_list_categoria = new JButton(DesktopRender.formatButton("Lista categorie"));
-        btn_list_posizione = new JButton(DesktopRender.formatButton("Lista posizioni"));
-        btn_list_unita = new JButton(DesktopRender.formatButton("Lista unita'"));
+        btn_list_categoria = new JButton(DesktopRender.formatButton("Elenco categorie"));
+        btn_list_posizione = new JButton(DesktopRender.formatButton("Elenco posizioni"));
+        btn_list_unita = new JButton(DesktopRender.formatButton("Elenco unita'"));
 
         initComponents();
         buildProduct();
@@ -138,6 +139,10 @@ public class ArticoloPane extends AContainer implements ActionListener {
         informationPane.add(btn_list_unita);
         informationPane.add(btn_list_categoria);
 
+        btn_list_categoria.addActionListener(this);
+        btn_list_posizione.addActionListener(this);
+        btn_list_unita.addActionListener(this);
+
         wrapperPane.setLayout(new BorderLayout());
         wrapperPane.add(informationPane, BorderLayout.NORTH);
         wrapperPane.add(internPanel, BorderLayout.SOUTH);
@@ -171,7 +176,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
         lblCategoria = new JLabel("Categoria");
         lblCategoria.setFont(font);
 
-        jcbCategoria = new JComboBox<>(loadProductAttribute(Attribute.CATEGORIA.getAttribute()).toArray(new String[0]));
+        jcbCategoria = new JComboBox<>(getAllCategories().toArray(new String[0]));
         jcbCategoria.setBorder(new LineBorder(Color.BLACK));
         jcbCategoria.setRenderer(new ComboRenderer());
         jcbCategoria.setFont(font);
@@ -179,9 +184,8 @@ public class ArticoloPane extends AContainer implements ActionListener {
 
         lblPosizione = new JLabel("Posizione");
         lblPosizione.setFont(font);
-        // Testo
 
-        jcbPosizione = new JComboBox<>(loadProductAttribute(Attribute.POSIZIONE.getAttribute()).toArray(new String[0]));
+        jcbPosizione = new JComboBox<>(getAllPosizione().toArray(new String[0]));
         jcbPosizione.setBorder(new LineBorder(Color.BLACK));
         jcbPosizione.setRenderer(new ComboRenderer());
         jcbPosizione.setFont(font);
@@ -190,18 +194,18 @@ public class ArticoloPane extends AContainer implements ActionListener {
         lblUnita = new JLabel("Unita'");
         lblUnita.setFont(font);
 
-        //jcbUnita = new JComboBox(new String[]{"Kilogrammi", "Metri", "Pacchi"});
-        jcbUnita = new JComboBox<>(loadProductAttribute(Attribute.UNITA.getAttribute()).toArray(new String[0]));
+        jcbUnita = new JComboBox<>(getAllUnita().toArray(new String[0]));
         jcbUnita.setBorder(new LineBorder(Color.BLACK));
         jcbUnita.setRenderer(new ComboRenderer());
         jcbUnita.setFont(font);
         jcbUnita.addActionListener(this);
 
-
         lblPrezzo = new JLabel("Prezzo");
         lblPrezzo.setFont(font);
 
         NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.ITALY);
+        currencyFormat.setMinimumFractionDigits(2);
+        currencyFormat.setMaximumFractionDigits(2);
         jtfCurrency = new JFormattedTextField(currencyFormat);
         jtfCurrency.setBorder(new EmptyBorder(0, 5, 0, 5));
         jtfCurrency.setBorder(new LineBorder(Color.BLACK));
@@ -223,9 +227,9 @@ public class ArticoloPane extends AContainer implements ActionListener {
         jtfScorta.setBackground(JTF_COLOR);
         jtfScorta.setCaretColor(new Color(255, 255, 255));
 
-
         lblProvenienza = new JLabel("Provenienza");
         lblProvenienza.setFont(font);
+
         // Testo
         jtfProvenienza = new JTextField(16);
         jtfProvenienza.setCaretColor(new Color(255, 255, 255));
@@ -233,6 +237,139 @@ public class ArticoloPane extends AContainer implements ActionListener {
         jtfProvenienza.setFont(font);
         jtfProvenienza.setBorder(new LineBorder(Color.BLACK));
 
+        alignArticoloInit();
+
+        internPanel.add(articlePane, BorderLayout.NORTH);
+        internPanel.add(actionPaneWrapper);
+    }
+
+
+    public static void alignArticoloInit() {
+        // aggiunto nel pannelli interno
+        articlePane.setLayout(new GridBagLayout());
+        GridBagConstraints gc = new GridBagConstraints();
+        // first column
+        gc.anchor = GridBagConstraints.EAST;
+        gc.weightx = 0.5;
+        gc.weighty = 0.5;
+
+        gc.gridx = 0;
+        gc.gridy = 0;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 5, 5, 5);
+        articlePane.add(lblDescrizione, gc);
+
+        gc.gridx = 0;
+        gc.gridy = 1;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 5, 5, 5);
+        articlePane.add(lblUnita, gc);
+
+        gc.gridx = 0;
+        gc.gridy = 2;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 5, 5, 5);
+        articlePane.add(lblScorta, gc);
+
+        // second column
+        gc.anchor = GridBagConstraints.CENTER;
+        gc.gridx = 1;
+        gc.gridy = 0;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 5, 5, 5);
+        articlePane.add(jtfDescrizione, gc);
+
+        gc.gridx = 1;
+        gc.gridy = 1;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 5, 5, 5);
+        articlePane.add(jcbUnita, gc);
+
+        gc.gridx = 1;
+        gc.gridy = 2;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 5, 5, 5);
+        articlePane.add(jspScorta, gc);
+
+
+        // Third column
+        gc.anchor = GridBagConstraints.CENTER;
+        gc.gridx = 2;
+        gc.gridy = 0;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 10, 5, 10);
+        articlePane.add(lblCategoria, gc);
+
+        gc.gridx = 2;
+        gc.gridy = 1;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 10, 5, 10);
+        articlePane.add(lblProvenienza, gc);
+
+        // Four column
+        gc.anchor = GridBagConstraints.CENTER;
+        gc.gridx = 3;
+        gc.gridy = 0;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 10, 5, 10);
+        articlePane.add(jcbCategoria, gc);
+
+        gc.gridx = 3;
+        gc.gridy = 1;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 10, 5, 10);
+        articlePane.add(jtfProvenienza, gc);
+
+        gc.gridx = 3;
+        gc.gridy = 2;
+
+
+        // Five column
+        gc.anchor = GridBagConstraints.CENTER;
+        gc.gridx = 4;
+        gc.gridy = 0;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 10, 5, 10);
+        articlePane.add(lblPosizione, gc);
+
+        gc.gridx = 4;
+        gc.gridy = 1;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 10, 5, 10);
+        articlePane.add(lblPrezzo, gc);
+
+
+        // Six column
+        gc.anchor = GridBagConstraints.CENTER;
+        gc.gridx = 5;
+        gc.gridy = 0;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 10, 5, 10);
+        articlePane.add(jcbPosizione, gc);
+
+        gc.gridx = 5;
+        gc.gridy = 1;
+
+        gc.anchor = GridBagConstraints.LINE_START;
+        gc.insets = new Insets(5, 10, 5, 10);
+        articlePane.add(jtfCurrency, gc);
+
+    }
+
+    public static void alignArticoloPost() {
         // aggiunto nel pannelli interno
         articlePane.setLayout(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
@@ -365,11 +502,8 @@ public class ArticoloPane extends AContainer implements ActionListener {
         gc.anchor = GridBagConstraints.LINE_START;
         gc.insets = new Insets(5, 10, 5, 10);
         articlePane.add(jtfProvenienza, gc);
-
-
-        internPanel.add(articlePane, BorderLayout.NORTH);
-        internPanel.add(actionPaneWrapper);
     }
+
 
     void buildFonctionality() {
 
@@ -408,37 +542,45 @@ public class ArticoloPane extends AContainer implements ActionListener {
         actionPane.add(btn_nuovo, ca);
 
         // Gestione degli eventi
-        btn_salva.addActionListener(e -> insertArticleToDB());
-        btn_aggiorna.addActionListener(e -> updateArticleToDB());
-        btn_elimina.addActionListener(e -> deleteArticleFromDB());
+        btn_salva.addActionListener(e -> insertArticle());
+        btn_aggiorna.addActionListener(e -> updateArticle(getArticolo()));
+        btn_elimina.addActionListener(e -> removeArticle());
         btn_nuovo.addActionListener(e -> initArticlePane());
 
         actionPaneWrapper.add(actionPane, BorderLayout.EAST);
     }
 
     void buildArticleDetails() {
-        String[] header = {"Codice", "Descrizione", "Categoria", "Posizione", "Unita'", "Prezzo", "Scorta", "Provenienza"};
+        String[] header = {"UID", "Codice", "Descrizione", "Categoria", "Posizione", "Unita'", "Prezzo", "Scorta", "Provenienza", "Inserimento"};
         tableModel = new DefaultTableModel(new Object[][]{}, header) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
-
         };
 
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-                Component returnComp = super.prepareRenderer(renderer, row, column);
-                int rendererWidth = returnComp.getPreferredSize().width;
+                Component component = super.prepareRenderer(renderer, row, column);
+                int rendererWidth = component.getPreferredSize().width;
                 TableColumn tableColumn = getColumnModel().getColumn(column);
                 tableColumn.setPreferredWidth(Math.max(rendererWidth + getIntercellSpacing().width, tableColumn.getPreferredWidth()));
-                if (!returnComp.getBackground().equals(getSelectionBackground())) {
-                    returnComp.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
+                if (!component.getBackground().equals(getSelectionBackground())) {
+                    component.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
                 }
-                return returnComp;
+
+                if ((new ArrayList<>(Arrays.asList(1, 6, 7, 9, 10))).contains(column))
+                    ((JLabel) component).setHorizontalAlignment(JLabel.CENTER);
+
+                if ((new ArrayList<>(Arrays.asList(1, 6, 7))).contains(column))
+                    component.setFont(font);
+                return component;
             }
+
         };
 
-        loadArticleFromDB().forEach(article -> tableModel.addRow(new String[]{article.getCodice(), article.getDescrizione(), article.getCategoria(), article.getPosizione(), article.getUnita(), String.valueOf(article.getPrezzo()).replace(".", ",").concat(" €"), String.valueOf(article.getScorta()), article.getProvenienza()}));
+        loadArticle().forEach(article -> tableModel.addRow(new String[]{String.valueOf(article.getUID()), String.valueOf(article.getCodice()), article.getDescrizione(), article.getCategoria().getCategoria(),
+                article.getPosizione().getPosizione(), article.getUnita().getUnita(), String.valueOf(article.getPrezzo()).replace(".", ",").concat(" €"),
+                String.valueOf(article.getScorta()), article.getProvenienza(), (new SimpleDateFormat(DATE_FORMAT)).format(article.getDataIns())}));
 
         tableHeader = table.getTableHeader();
         tableHeader.setBackground(new Color(39, 55, 70));
@@ -462,29 +604,26 @@ public class ArticoloPane extends AContainer implements ActionListener {
 
         buildFonctionality();
         table.getSelectionModel().addListSelectionListener(e -> getSelectedArticle());
-        table.getColumnModel().getColumn(0).setMinWidth(80);
-        table.getColumnModel().getColumn(6).setMinWidth(80);
+        table.getColumnModel().getColumn(0).setMinWidth(0);
+        table.getColumnModel().getColumn(0).setMaxWidth(0);
+        table.getColumnModel().getColumn(1).setMinWidth(100);
+        table.getColumnModel().getColumn(1).setMaxWidth(100);
+        table.getColumnModel().getColumn(6).setMinWidth(110);
+        table.getColumnModel().getColumn(6).setMaxWidth(110);
+        table.getColumnModel().getColumn(7).setMinWidth(110);
+        table.getColumnModel().getColumn(7).setMaxWidth(110);
+        table.getColumnModel().getColumn(9).setMinWidth(150);
+        table.getColumnModel().getColumn(9).setMaxWidth(150);
 
         scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(new Dimension(1150, 420));
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         scrollPane.getViewport().setBackground(table.getBackground());
-
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         internPanel.add(scrollPane);
     }
 
-    void formatButton(JButton btn) {
-        btn.setFont(font);
-        btn.setForeground(Color.WHITE);
-        btn.setBorder(new LineBorder(Color.BLACK));
-        btn.setBackground(new Color(0, 128, 128));
-        btn.setFocusPainted(false);
-        btn.addActionListener(this);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setPreferredSize(new Dimension(180, 40));
-    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -496,33 +635,35 @@ public class ArticoloPane extends AContainer implements ActionListener {
             container.repaint();
             container.doLayout();
         } else if (e.getSource() == btn_list_categoria) {
-            new CategoryPane(formatTitleFieldPane(e.getActionCommand()), IntStream.range(0, jcbCategoria.getItemCount()).mapToObj(i -> jcbCategoria.getItemAt(i)).collect(Collectors.toCollection(ArrayList::new)));
+            new CategoryView(formatTitleFieldPane(e.getActionCommand()));
         } else if (e.getSource() == btn_list_unita) {
-            new UnitPane(formatTitleFieldPane(e.getActionCommand()), IntStream.range(0, jcbUnita.getItemCount()).mapToObj(i -> jcbUnita.getItemAt(i)).collect(Collectors.toCollection(ArrayList::new)));
+            new UnitView(formatTitleFieldPane(e.getActionCommand()));
         } else if (e.getSource() == btn_list_posizione) {
-            new PositionPane(formatTitleFieldPane(e.getActionCommand()), IntStream.range(0, jcbPosizione.getItemCount()).mapToObj(i -> jcbPosizione.getItemAt(i)).collect(Collectors.toCollection(ArrayList::new)));
+            new PositionView(formatTitleFieldPane(e.getActionCommand()));
         }
     }
 
     public void getSelectedArticle() {
-        if (table.getSelectedRow() >= 0) {
-            Articolo articolo = new Articolo();
-            articolo.setCodice(String.valueOf(table.getValueAt(table.getSelectedRow(), 0)));
-            articolo.setDescrizione(String.valueOf(table.getValueAt(table.getSelectedRow(), 1)));
-            articolo.setCategoria(String.valueOf(table.getValueAt(table.getSelectedRow(), 2)));
-            articolo.setPosizione(String.valueOf(table.getValueAt(table.getSelectedRow(), 3)));
-            articolo.setUnita(String.valueOf(table.getValueAt(table.getSelectedRow(), 4)));
-            articolo.setPrezzo(Double.valueOf(table.getValueAt(table.getSelectedRow(), 5).toString().replace("€", "").replace(",", ".")));
-            articolo.setScorta(Integer.valueOf(table.getValueAt(table.getSelectedRow(), 6).toString()));
-            articolo.setProvenienza(String.valueOf(table.getValueAt(table.getSelectedRow(), 7)));
+        if (table.getSelectedRow() >=0) {
+            articlePane.removeAll();
+            alignArticoloPost();
+            articlePane.revalidate();
+            articlePane.repaint();
 
+            Articolo articolo = getArticolo();
             // set dei valori dell'articolo per l'aggiornamento
-            jtfCodice.setText(articolo.getCodice());
+            jtfCodice.setText(String.valueOf(articolo.getCodice()));
             jtfCodice.setEditable(false);
             jtfDescrizione.setText(articolo.getDescrizione());
-            jcbCategoria.setSelectedItem(articolo.getCategoria());
-            jcbPosizione.setSelectedItem(articolo.getPosizione());
-            jcbUnita.setSelectedItem(articolo.getUnita());
+
+            Categoria categoria= articolo.getCategoria();
+            Unita unita= articolo.getUnita();
+            Posizione posizione= articolo.getPosizione();
+
+            jcbCategoria.setSelectedItem(categoria.getCategoria());
+            jcbPosizione.setSelectedItem(posizione.getPosizione());
+            jcbUnita.setSelectedItem(unita.getUnita());
+
             jtfCurrency.setText("€ ".concat(String.valueOf(articolo.getPrezzo())).replace(".", ","));
             jspScorta.setValue(articolo.getScorta());
             jtfProvenienza.setText(articolo.getProvenienza());
@@ -531,45 +672,34 @@ public class ArticoloPane extends AContainer implements ActionListener {
         table.repaint();
     }
 
+
+    public static Articolo getArticolo() {
+        Articolo articolo = new Articolo();
+
+        if (table.getSelectedRow() >= 0) {
+            int index = table.getSelectedRow();
+            articolo.setUID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
+            articolo.setCodice(formatProductCode(Integer.valueOf(String.valueOf(table.getValueAt(index, 0)))));
+            articolo.setDescrizione(String.valueOf(table.getValueAt(index, 2)));
+
+            articolo.setCategoria(new Categoria(String.valueOf(table.getValueAt(index, 3)), false));
+            articolo.setPosizione(new Posizione(String.valueOf(table.getValueAt(index, 4)), false));
+            articolo.setUnita(new Unita(String.valueOf(table.getValueAt(index, 5)), false));
+
+            articolo.setPrezzo(Double.valueOf(table.getValueAt(index, 6).toString().replace("€", "").replace(",", ".")));
+            articolo.setScorta(Integer.valueOf(table.getValueAt(index, 7).toString()));
+            articolo.setProvenienza(String.valueOf(table.getValueAt(index, 8)));
+            try {
+                articolo.setDataIns(table.getValueAt(index, 9) != null ? (new SimpleDateFormat(DATE_FORMAT)).parse(table.getValueAt(index, 9).toString()) : null);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return articolo;
+
+    }
+
     String formatTitleFieldPane(String field) {
         return field.replace("<html><center>", "").replace("</center></html>", "");
     }
-
-    // Gestione attributi del prodotto
-    public enum Attribute {
-        CATEGORIA("CATEGORIA"), UNITA("UNITA"), POSIZIONE("POSIZIONE");
-        String attribute;
-
-        Attribute(String s) {
-            attribute = s;
-        }
-
-        public String getAttribute() {
-            return attribute;
-        }
-    }
-
-    // Informazioni sull'articolo
-
-    public static Set<String> loadProductAttribute(String attribute) {
-        Set<String> lista = new HashSet<String>() {
-            {
-                add("NOT CATEGORIZED");
-            }
-        };
-        try {
-            Connection con = (new ConnectionManager()).getConnection();
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(String.format("SELECT* FROM %s_PRODOTTO", attribute));
-            while (rs.next())
-                lista.add(rs.getString(attribute));
-            stmt.close();
-            con.close();
-        } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        }
-        return lista;
-
-    }
-
 }

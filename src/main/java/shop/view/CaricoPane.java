@@ -2,10 +2,10 @@ package shop.view;
 
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JTextFieldDateEditor;
-import shop.model.Carico;
+import shop.entity.Carico;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
-import shop.view.rilevazione.CaricoPaneUpdate;
+import shop.view.rilevazione.CaricoPaneUPD;
 import shop.view.rilevazione.InfoCaricoPane;
 
 import javax.swing.*;
@@ -26,8 +26,7 @@ import java.util.stream.Collectors;
 import static java.util.Objects.requireNonNull;
 import static javax.swing.JOptionPane.showMessageDialog;
 import static shop.utils.DesktopRender.FONT_FAMILY;
-import static shop.view.rilevazione.controller.CaricoDbOperation.deleteCaricoFromDB;
-import static shop.view.rilevazione.controller.CaricoDbOperation.loadCaricoFromDB;
+import static shop.dao.CaricoDAO.*;
 
 public class CaricoPane extends AContainer implements ActionListener {
 
@@ -194,7 +193,7 @@ public class CaricoPane extends AContainer implements ActionListener {
         wrapperPane.add(clientPane, BorderLayout.CENTER);
 
         btn_remove.addActionListener(e -> {
-            deleteCaricoFromDB();
+            deleteCarico();
             table.getSelectionModel().clearSelection();
         });
         btn_search.addActionListener(e -> filterTable());
@@ -202,16 +201,14 @@ public class CaricoPane extends AContainer implements ActionListener {
     }
 
     void buildArticleDetails() {
-        String[] header = {"", "Data Carico", "Codice Prodotto", "Descrizione", "Quantita'", "Fornitore", "Data scadenza", "Note"};
+        String[] header = {"UID", "Data Carico", "Codice Prodotto", "Descrizione", "Quantita'", "Importo", "Fornitore", "Data scadenza", "Note"};
         tableModel = new DefaultTableModel(new Object[][]{}, header) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
-        for (Carico carico : loadCaricoFromDB()) {
-            tableModel.addRow(new String[]{String.valueOf(carico.getID()), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatacarico()), carico.getCodice(), carico.getDescrizione(), String.valueOf(carico.getQuantita()), carico.getFornitore(), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatascadenza()), carico.getNote()});
-        }
+        loadCarico().forEach(carico -> tableModel.addRow(new String[]{String.valueOf(carico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatacarico()), carico.getCodice(), carico.getDescrizione(), String.valueOf(carico.getQuantita()), String.valueOf(carico.getImporto()).concat(" €"), carico.getFornitore(), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatascadenza()), carico.getNote()}));
 
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -222,11 +219,10 @@ public class CaricoPane extends AContainer implements ActionListener {
                 if (!returnComp.getBackground().equals(getSelectionBackground())) {
                     returnComp.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
                 }
+                ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
+                if (column == 2 || column == 4|| column == 5)
+                    returnComp.setFont(font);
 
-                if (column == 1 || column == 3 || column == 4)
-                    ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
-                else
-                    ((JLabel) returnComp).setHorizontalAlignment(JLabel.RIGHT);
                 return returnComp;
             }
         };
@@ -251,13 +247,17 @@ public class CaricoPane extends AContainer implements ActionListener {
 
         table.getColumnModel().getColumn(0).setMinWidth(0);
         table.getColumnModel().getColumn(0).setMaxWidth(0);
-        table.getColumnModel().getColumn(0).setWidth(0);
-        table.getColumnModel().getColumn(1).setMinWidth(178);
-        table.getColumnModel().getColumn(2).setMinWidth(80);
+
+        table.getColumnModel().getColumn(1).setMinWidth(150);
+
+        table.getColumnModel().getColumn(2).setMinWidth(150);
+        table.getColumnModel().getColumn(2).setMaxWidth(150);
+
         table.getColumnModel().getColumn(3).setMinWidth(260);
         table.getColumnModel().getColumn(4).setMinWidth(80);
         table.getColumnModel().getColumn(5).setMinWidth(220);
-        table.getColumnModel().getColumn(6).setMinWidth(220);
+        table.getColumnModel().getColumn(6).setMinWidth(150);
+        table.getColumnModel().getColumn(7).setMinWidth(220);
 
         scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -291,18 +291,18 @@ public class CaricoPane extends AContainer implements ActionListener {
         Carico carico = new Carico();
         if (table.getSelectedRow() >= 0) {
             int index = table.getSelectedRow();
-            carico.setID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
+            carico.setUID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
             try {
                 carico.setDatacarico((new SimpleDateFormat(DATE_FORMAT)).parse(table.getValueAt(index, 1).toString()));
-                carico.setDatascadenza((new SimpleDateFormat(DATE_FORMAT)).parse(table.getValueAt(index, 6).toString()));
+                carico.setDatascadenza((new SimpleDateFormat(DATE_FORMAT)).parse(table.getValueAt(index, 7).toString()));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
             carico.setCodice(String.valueOf(table.getValueAt(index, 2)));
             carico.setDescrizione(String.valueOf(table.getValueAt(index, 3)));
             carico.setQuantita(Integer.valueOf(String.valueOf(table.getValueAt(index, 4))));
-            carico.setFornitore(String.valueOf(table.getValueAt(index, 5)));
-            carico.setNote(String.valueOf(table.getValueAt(index, 7)));
+            carico.setFornitore(String.valueOf(table.getValueAt(index, 6)));
+            carico.setNote(String.valueOf(table.getValueAt(index, 8)));
         }
         return carico;
     }
@@ -369,7 +369,7 @@ public class CaricoPane extends AContainer implements ActionListener {
             if (table.getSelectedRow() == -1) {
                 showMessageDialog(null, "Selezionare un carico", "Info Dialog", JOptionPane.ERROR_MESSAGE);
             } else
-                new CaricoPaneUpdate(getSelectedCarico());
+                new CaricoPaneUPD(getSelectedCarico());
         }
     }
 }

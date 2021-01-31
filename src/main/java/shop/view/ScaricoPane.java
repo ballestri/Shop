@@ -2,7 +2,7 @@ package shop.view;
 
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JTextFieldDateEditor;
-import shop.model.Scarico;
+import shop.entity.Scarico;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
 import shop.view.rilevazione.*;
@@ -19,12 +19,12 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static javax.swing.JOptionPane.showMessageDialog;
+import static shop.utils.DesktopRender.DATE_FORMAT;
 import static shop.utils.DesktopRender.FONT_FAMILY;
-import static shop.view.rilevazione.controller.ScaricoDbOperation.*;
+import static shop.dao.ScaricoDAO.*;
 
 public class ScaricoPane extends AContainer implements ActionListener {
 
-    private static final String DATE_FORMAT = "dd/MM/yyyy";
     public JButton btn_prima;
 
     // pannello interno
@@ -185,22 +185,20 @@ public class ScaricoPane extends AContainer implements ActionListener {
         wrapperPane.add(searchPane, BorderLayout.NORTH);
         wrapperPane.add(clientPane, BorderLayout.CENTER);
 
-        btn_remove.addActionListener(e -> deleteScaricoFromDB());
+        btn_remove.addActionListener(e -> deleteScarico());
         btn_search.addActionListener(e -> filterTable());
         btn_refresh.addActionListener(e -> refreshTable());
     }
 
     void buildArticleDetails() {
-        String[] header = {"", "Data Scarico", "Codice Prodotto", "Descrizione", "Quantita'", "Fornitore", "Note"};
+        String[] header = {"", "Data Scarico", "Codice Prodotto", "Descrizione", "Quantita'","Importo", "Fornitore", "Note"};
         tableModel = new DefaultTableModel(new Object[][]{}, header) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
-        for (Scarico scarico : loadScaricoFromDB()) {
-            tableModel.addRow(new String[]{String.valueOf(scarico.getID()), (new SimpleDateFormat(DATE_FORMAT)).format(scarico.getDatascarico()), scarico.getCodice(), scarico.getDescrizione(), String.valueOf(scarico.getQuantita()), scarico.getFornitore(), scarico.getNote()});
-        }
+        loadScarico().forEach(scarico -> tableModel.addRow(new String[]{String.valueOf(scarico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(scarico.getDatascarico()), scarico.getCodice(), scarico.getDescrizione(), String.valueOf(scarico.getQuantita()), String.valueOf(scarico.getImporto()).concat(" €"), scarico.getFornitore(), scarico.getNote()}));
 
 
         table = new JTable(tableModel) {
@@ -212,10 +210,9 @@ public class ScaricoPane extends AContainer implements ActionListener {
                 if (!returnComp.getBackground().equals(getSelectionBackground())) {
                     returnComp.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
                 }
-                if (column == 0 || column == 2 || column == 3)
-                    ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
-                else
-                    ((JLabel) returnComp).setHorizontalAlignment(JLabel.RIGHT);
+                ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
+                if (column == 2 || column == 4|| column == 5)
+                    returnComp.setFont(font);
                 return returnComp;
             }
         };
@@ -240,14 +237,17 @@ public class ScaricoPane extends AContainer implements ActionListener {
 
         table.getColumnModel().getColumn(0).setMinWidth(0);
         table.getColumnModel().getColumn(0).setMaxWidth(0);
-        table.getColumnModel().getColumn(0).setWidth(0);
 
-        table.getColumnModel().getColumn(1).setMinWidth(178);
-        table.getColumnModel().getColumn(2).setMinWidth(80);
+        table.getColumnModel().getColumn(1).setMinWidth(150);
+
+        table.getColumnModel().getColumn(2).setMinWidth(150);
+        table.getColumnModel().getColumn(2).setMaxWidth(150);
+
         table.getColumnModel().getColumn(3).setMinWidth(260);
         table.getColumnModel().getColumn(4).setMinWidth(80);
         table.getColumnModel().getColumn(5).setMinWidth(220);
-        table.getColumnModel().getColumn(6).setMinWidth(220);
+        table.getColumnModel().getColumn(6).setMinWidth(150);
+        table.getColumnModel().getColumn(7).setMinWidth(220);
 
 
         scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -282,7 +282,7 @@ public class ScaricoPane extends AContainer implements ActionListener {
         Scarico scarico = new Scarico();
         if (table.getSelectedRow() >= 0) {
             int index = table.getSelectedRow();
-            scarico.setID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
+            scarico.setUID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
 
             try {
                 scarico.setDatascarico((new SimpleDateFormat(DATE_FORMAT)).parse(table.getValueAt(index, 1).toString()));
@@ -359,7 +359,7 @@ public class ScaricoPane extends AContainer implements ActionListener {
             if (table.getSelectedRow() == -1) {
                 showMessageDialog(null, "Selezionare uno scarico", "Info Dialog", JOptionPane.ERROR_MESSAGE);
             } else
-                new ScaricoPaneUpdate(getSelectedScarico());
+                new ScaricoPaneUPD(getSelectedScarico());
         }
     }
 }

@@ -3,9 +3,8 @@ package shop.view;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.IntStream;
+import java.util.*;
+import java.util.stream.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 

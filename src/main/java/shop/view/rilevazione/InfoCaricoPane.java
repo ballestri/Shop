@@ -7,7 +7,7 @@ import shop.controller.CustomComboRenderer;
 
 import static shop.utils.DesktopRender.*;
 
-import shop.db.DBUtils;
+import shop.dao.DAOUtils;
 import shop.utils.RoundedPanel;
 
 import javax.swing.*;
@@ -16,7 +16,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
-import static shop.view.rilevazione.controller.CaricoDbOperation.*;
+import static shop.dao.CaricoDAO.*;
 
 public class InfoCaricoPane extends JFrame implements ActionListener {
 
@@ -24,7 +24,7 @@ public class InfoCaricoPane extends JFrame implements ActionListener {
     private static final int HEIGHT = 720;
     private static Font font;
     protected JPanel wrapperPane, actionPane;
-    RoundedPanel infoPane, internPane;
+    RoundedPanel infoCaricoPane, internPane;
     protected JLabel lblCodice, lblDescrizione, lblData, lblQuantita, lblFornitore, lblDatascadenza, lblNote;
     public static JTextField jtfDescrizione;
     public static JSpinner jspQuantita;
@@ -63,7 +63,7 @@ public class InfoCaricoPane extends JFrame implements ActionListener {
         wrapperPane = new JPanel();
         internPane = new RoundedPanel();
         actionPane = new JPanel();
-        infoPane = new RoundedPanel();
+        infoCaricoPane = new RoundedPanel();
 
         initComponents();
         add(wrapperPane);
@@ -77,7 +77,7 @@ public class InfoCaricoPane extends JFrame implements ActionListener {
     void initComponents() {
         wrapperPane.setBounds(20, 90, WIDTH - 60, HEIGHT - 160);
         internPane.setPreferredSize(new Dimension(WIDTH - 200, HEIGHT - 350));
-        infoPane.setPreferredSize(new Dimension(WIDTH - 200, 60));
+        infoCaricoPane.setPreferredSize(new Dimension(WIDTH - 200, 60));
 
         wrapperPane.setBackground(new Color(39, 55, 70));
         Border line = BorderFactory.createLineBorder(Color.WHITE);
@@ -87,22 +87,22 @@ public class InfoCaricoPane extends JFrame implements ActionListener {
 
         buildFornitore();
         wrapperPane.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 15));
-        wrapperPane.add(infoPane);
+        wrapperPane.add(infoCaricoPane);
         wrapperPane.add(internPane);
         wrapperPane.add(actionPane);
     }
 
     void buildFornitore() {
-        infoPane.setLayout(new GridBagLayout());
+        infoCaricoPane.setLayout(new GridBagLayout());
         JLabel lblFormName = new JLabel("Operazioni di carico");
         lblFormName.setFont(new Font(FONT_FAMILY, Font.BOLD, 18));
-        infoPane.add(lblFormName);
+        infoCaricoPane.add(lblFormName);
 
         // pannello interno
         lblCodice = new JLabel("Codice prodotto");
         lblCodice.setFont(font);
 
-        ArrayList<String> items = DBUtils.getListCodici();
+        ArrayList<String> items = DAOUtils.getListCodici();
         items.add(0, null);
         jcbCodice = new JComboBox<>(items.toArray(new String[0]));
         ComboBoxFilterDecorator<String> decorate = ComboBoxFilterDecorator.decorate(jcbCodice, InfoCaricoPane::codiceFilter);
@@ -152,7 +152,7 @@ public class InfoCaricoPane extends JFrame implements ActionListener {
         lblFornitore = new JLabel("Fornitore");
         lblFornitore.setFont(font);
 
-        ArrayList<String> elements = DBUtils.getListFornitori();
+        ArrayList<String> elements = DAOUtils.getListFornitore();
         items.add(0, null);
         jcbFornitore = new JComboBox<>(elements.toArray(new String[0]));
         ComboBoxFilterDecorator<String> decorator = ComboBoxFilterDecorator.decorate(jcbFornitore, InfoCaricoPane::fornitoreFilter);
@@ -312,14 +312,14 @@ public class InfoCaricoPane extends JFrame implements ActionListener {
 
         jcbCodice.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-                jtfDescrizione.setText(DBUtils.getProduct(String.valueOf(jcbCodice.getSelectedItem())).getDescrizione());
+                jtfDescrizione.setText(DAOUtils.getProduct(String.valueOf(jcbCodice.getSelectedItem())).getDescrizione());
                 jtfDescrizione.setEditable(false);
             }
         });
 
         btn_clear.addActionListener(e -> initInfoCaricoPane());
         btn_save.addActionListener(e -> {
-                    insertCaricoToDB();
+                    insertCarico();
                     dispose();
                 }
         );

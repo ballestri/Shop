@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!--Part 1: Configure database information-->
+        <!--ctrl+alt+shift+s lib add mysql-connector-->
+        <property name="connection.url">jdbc:h2:~/DBSHOP;IFEXISTS=TRUE</property>
+        <property name="connection.driver_class">org.h2.Driver</property>
+        <property name="connection.username">shop</property>
+        <property name="connection.password">shop</property>
+        <property name="hibernate.current_session_context_class">thread</property>
+        <!--<property name ="connection.poolsize">1000</property>-->
+        <property name="connection.pool_size">20</property>
+        <property name="hibernate.c3p0.min_size">5</property>
+        <property name="hibernate.c3p0.max_size">20</property>
+        <property name="hibernate.c3p0.timeout">300</property>
+        <property name="hibernate.c3p0.max_statements">50</property>
+        <property name="hibernate.c3p0.idle_test_period">3000</property>
+        <property name="hibernate.dbcp.initialSize">8</property>
+        <property name="hibernate.dbcp.maxActive">20</property>
+        <property name="hibernate.dbcp.maxIdle">20</property>
+        <property name="hibernate.dbcp.minIdle">0</property>
+        <property name="hibernate.c3p0.acquire_increment">1</property>
+        <property name="hibernate.c3p0.validate">1800</property>
+        <property name="hibernate.c3p0.unreturnedConnectionTimeout">30</property>
+        <property name="hibernate.c3p0.debugUnreturnedConnectionStackTraces">true</property>
+        <!--Part 2: Optional-->
+        <!-- DB schema will be updated if needed -->
+        <property name="hbm2ddl.auto">update</property>
+        <!--Output SQL statement, and format -->
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+        <property name="use_sql_comments">true</property>
+        <!--Dialects of various databases-->
+        <property name="dialect">org.hibernate.dialect.H2Dialect</property>
+        <!--Part 3: Mapping files-->
+        <mapping class="shop.entity.Articolo"/>
+        <mapping class="shop.entity.Fornitore"/>
+        <mapping class="shop.entity.Carico"/>
+        <mapping class="shop.entity.Scarico"/>
+        <mapping class="shop.entity.Giacenza"/>
+        <mapping class="shop.entity.Movimento"/>
+        <mapping class="shop.entity.Credentials"/>
+        <mapping class="shop.entity.Categoria"/>
+        <mapping class="shop.entity.Posizione"/>
+        <mapping class="shop.entity.Unita"/>
+    </session-factory>
+</hibernate-configuration>

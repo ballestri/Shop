@@ -1,13 +1,12 @@
 package shop.view;
 
-import shop.db.ConnectionManager;
-import shop.utils.CreateRoundButton;
-import shop.utils.DesktopRender;
-import shop.utils.RoundedPanel;
+import shop.dao.JPAProvider;
+import shop.entity.Credentials;
+import shop.utils.*;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.*;
+import javax.persistence.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -21,9 +20,7 @@ public class LoginPane extends AContainer implements ActionListener {
     JPasswordField jtfPassword;
     CreateRoundButton btn_login;
 
-
     public LoginPane() {
-
         initPanel();
     }
 
@@ -43,7 +40,6 @@ public class LoginPane extends AContainer implements ActionListener {
         toolbar.addSeparator();
         btn_close.addActionListener(evt -> System.exit(0));
 
-
         // Pannello interno
         wrapperPane = new JPanel();
         wrapperPane.setBounds(375, 160, 825, 625);
@@ -61,7 +57,6 @@ public class LoginPane extends AContainer implements ActionListener {
         loginPanel.add(lblFormName);
 
         wrapperPane.add(loginPanel, BorderLayout.NORTH);
-
 
         font = new Font(DesktopRender.FONT_FAMILY, Font.BOLD, 28);
         lblUsername = new JLabel("Username");
@@ -156,34 +151,34 @@ public class LoginPane extends AContainer implements ActionListener {
         container.add(toolbar, BorderLayout.NORTH);
     }
 
+
+    Credentials checkCredentials() {
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        TypedQuery<Credentials> query = em.createQuery("SELECT c FROM Credentials c", Credentials.class);
+        Credentials credentials = query.getSingleResult();
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return credentials;
+    }
+
     void controlAccess() {
 
-        Connection con = (new ConnectionManager()).getConnection();
-        try {
-            Statement stmt = con.createStatement();
-            String QUERY = "SELECT * FROM Credentials";
-            ResultSet rs = stmt.executeQuery(QUERY);
-            if (rs.next()) {
-                if (jtfUsername.getText().equals(rs.getString("username").trim()) && ((new String(jtfPassword.getPassword())).equals(rs.getString("password")))) {
-                    container.removeAll();
-                    container.revalidate();
-                    container.add(new Pannello().getPanel());
-                    container.repaint();
-                } else {
-                    JOptionPane.showMessageDialog(container, "Credenziali errati", "Info Dialog",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-            stmt.close();
-            con.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        Credentials credentials = checkCredentials();
+        if (jtfUsername.getText().equals(credentials.getUsername()) && ((new String(jtfPassword.getPassword())).equals(credentials.getPassword()))) {
+            container.removeAll();
+            container.revalidate();
+            container.add(new Pannello().getPanel());
+            container.repaint();
+        } else {
+            JOptionPane.showMessageDialog(container, "Credenziali errati", "Info Dialog",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
         if (e.getSource() == btn_login) {
             controlAccess();
         }

@@ -8,10 +8,9 @@ import javax.swing.border.*;
 import shop.utils.CreateRoundButton;
 import shop.utils.DesktopRender;
 
+
 public class AnagraficaPane extends AContainer implements ActionListener {
 
-    // Le funzionalita dell'app
-    private JPanel panel;
     private JButton btn_articolo;
     private JButton btn_cliente;
 
@@ -23,13 +22,14 @@ public class AnagraficaPane extends AContainer implements ActionListener {
     public void initPanel() {
         // Pulsanti
         btn_articolo = new CreateRoundButton(DesktopRender.formatButton("Gestione", "Articoli"));
-        btn_cliente = new CreateRoundButton(DesktopRender.formatButton("Gestione", "Clienti"));
+        btn_cliente = new CreateRoundButton(DesktopRender.formatButton("Gestione", "Fornitori"));
 
         // Pannello interno
-        panel = new JPanel();
+        // Le funzionalita dell'app
+        JPanel panel = new JPanel();
 
         // Font dei pulsanti
-        Font font = new Font("HelveticaNeue", Font.BOLD, 30);
+        Font font = new Font(DesktopRender.FONT_FAMILY, Font.BOLD, 30);
 
         panel.setBounds(150, 105, 825, 625);
         Border whiteline = BorderFactory.createLineBorder(Color.WHITE);
@@ -70,7 +70,6 @@ public class AnagraficaPane extends AContainer implements ActionListener {
         gc.insets = new Insets(5, 10, 10, 10);
         panel.add(btn_articolo, gc);
 
-
         // second column//
         gc.anchor = GridBagConstraints.WEST;
         gc.gridx = 3;
@@ -80,7 +79,6 @@ public class AnagraficaPane extends AContainer implements ActionListener {
         panel.add(btn_cliente, gc);
 
         container.add(panel);
-
         container.setLayout(new BorderLayout());
     }
 

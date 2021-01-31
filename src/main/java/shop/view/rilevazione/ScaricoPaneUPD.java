@@ -4,29 +4,31 @@ import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JTextFieldDateEditor;
 import shop.controller.*;
 import shop.dao.DAOUtils;
+import shop.dao.JPAProvider;
+import shop.entity.Scarico;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
 
+import javax.persistence.EntityManager;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.util.ArrayList;
+import java.awt.event.*;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.Date;
 import java.util.Objects;
 
+import static javax.swing.JOptionPane.showMessageDialog;
 import static shop.utils.DesktopRender.*;
+import static shop.view.ScaricoPane.*;
 import static shop.dao.ScaricoDAO.*;
 
-public class InfoScaricoPane extends JFrame implements ActionListener {
+public class ScaricoPaneUPD extends JFrame implements ActionListener {
 
     private static final int WIDTH = 640;
     private static final int HEIGHT = 720;
     Font font;
-    private static final String DATE_FORMAT = "dd/MM/yyyy";
 
     JPanel wrapperPane, actionPane;
     RoundedPanel infoPane, internPane;
@@ -34,19 +36,21 @@ public class InfoScaricoPane extends JFrame implements ActionListener {
     public static JTextField jtfDescrizione;
     public static JSpinner jspQuantita;
     public static JDateChooser jdcData;
-    public static JComboBox<String> jcbCodice, jcbFornitore;
-    protected JButton btn_save, btn_clear;
+    protected JButton btn_update, btn_clear;
     public static JTextArea jtaNote;
+    public static JComboBox<String> jcbCodice, jcbFornitore;
+    public Integer UID;
+    public String COD;
 
-    public InfoScaricoPane() {
+    public ScaricoPaneUPD(Scarico scarico) {
 
         setTitle("Informazioni Scarico");
         setDefaultCloseOperation(HIDE_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         Dimension size = new Dimension(new Dimension(WIDTH, HEIGHT));
-        setPreferredSize(size);
         setSize(size);
+        setPreferredSize(size);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = getSize();
         setLocation(new Point((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2));
@@ -63,21 +67,34 @@ public class InfoScaricoPane extends JFrame implements ActionListener {
         toolbar.addSeparator();
         btn_close.addActionListener(e -> dispose());
 
-        font = new Font(FONT_FAMILY, Font.BOLD, 17);
+        font = new Font("HelveticaNeue", Font.BOLD, 17);
 
         wrapperPane = new JPanel();
         internPane = new RoundedPanel();
         actionPane = new JPanel();
         infoPane = new RoundedPanel();
 
+        UID = scarico.getUID();
+        COD = scarico.getCodice();
         initComponents();
-
+        setElementsPane(scarico);
         add(wrapperPane);
         getContentPane().setBackground(new Color(116, 142, 203));
         toolbar.setFloatable(false);
         setLayout(new BorderLayout());
         add(toolbar, BorderLayout.NORTH);
         setVisible(true);
+    }
+
+    void setElementsPane(Scarico scarico) {
+        jcbCodice.setSelectedItem(scarico.getCodice());
+        jcbCodice.setEditable(false);
+        jtfDescrizione.setText(scarico.getDescrizione());
+        jtfDescrizione.setEditable(false);
+        jspQuantita.setValue(scarico.getQuantita());
+        jcbFornitore.setSelectedItem(String.valueOf(jcbFornitore.getSelectedItem()));
+        jtaNote.setText(scarico.getNote());
+        jdcData.setDate(scarico.getDatascarico());
     }
 
     void initComponents() {
@@ -109,11 +126,8 @@ public class InfoScaricoPane extends JFrame implements ActionListener {
         lblCodice = new JLabel("Codice prodotto");
         lblCodice.setFont(font);
 
-        ArrayList<String> items = DAOUtils.getListCodici();
-        items.add(0, null);
+        ArrayList<String> items = new ArrayList<>(Collections.singletonList(COD));
         jcbCodice = new JComboBox<>(items.toArray(new String[0]));
-        ComboBoxFilterDecorator<String> decorate = ComboBoxFilterDecorator.decorate(jcbCodice, InfoScaricoPane::codiceFilter);
-        jcbCodice.setRenderer(new CustomComboRenderer(decorate.getFilterLabel()));
         jcbCodice.setBorder(new LineBorder(Color.BLACK));
         jcbCodice.setFont(font);
         jcbCodice.addActionListener(this);
@@ -131,18 +145,17 @@ public class InfoScaricoPane extends JFrame implements ActionListener {
         lblData.setFont(font);
 
         jdcData = new JDateChooser();
-        jdcData.setDateFormatString(DATE_FORMAT);
+        jdcData.setDateFormatString(DesktopRender.DATE_FORMAT);
         jdcData.setPreferredSize(new Dimension(220, 30));
 
-        jdcData.setFont(new Font("HelveticaNeue", Font.BOLD, 16));
-        Date date = new Date();
-        jdcData.setDate(date);
-        jdcData.setMaxSelectableDate(new Date());
+        jdcData.setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
+        jdcData.setDate(new Date());
         JTextFieldDateEditor dateEditor = (JTextFieldDateEditor) jdcData.getComponent(1);
         dateEditor.setHorizontalAlignment(JTextField.RIGHT);
         dateEditor.setFont(font);
         dateEditor.setBackground(DesktopRender.JTF_COLOR);
         dateEditor.setBorder(new LineBorder(Color.BLACK));
+
 
         lblQuantita = new JLabel("Quantita' scarico");
         lblQuantita.setFont(font);
@@ -179,6 +192,7 @@ public class InfoScaricoPane extends JFrame implements ActionListener {
         jtaNote.setBackground(DesktopRender.JTF_COLOR);
         jtaNote.setBorder(new LineBorder(Color.BLACK));
         jtaNote.setFont(font);
+
         JScrollPane jScrollNote = new JScrollPane(jtaNote, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -269,11 +283,11 @@ public class InfoScaricoPane extends JFrame implements ActionListener {
         gc.anchor = GridBagConstraints.LINE_START;
         internPane.add(jScrollNote, gc);
 
-        btn_save = new JButton(formatButton("Save"));
+        btn_update = new JButton(formatButton("Update"));
         btn_clear = new JButton(formatButton("Clear"));
 
         formatButton(btn_clear);
-        formatButton(btn_save);
+        formatButton(btn_update);
 
         actionPane.setBackground(wrapperPane.getBackground());
         actionPane.setLayout(new GridBagLayout());
@@ -283,7 +297,7 @@ public class InfoScaricoPane extends JFrame implements ActionListener {
         ca.insets = new Insets(5, 10, 15, 28);
 
         actionPane.add(btn_clear, ca);
-        actionPane.add(btn_save, ca);
+        actionPane.add(btn_update, ca);
 
         jcbCodice.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -292,25 +306,48 @@ public class InfoScaricoPane extends JFrame implements ActionListener {
             }
         });
 
-        btn_clear.addActionListener(e -> initInfoCaricoPane());
-        btn_save.addActionListener(e -> {
-                    insertScarico();
-                    dispose();
-                }
-        );
+        //btn_clear.addActionListener(e -> initInfoCaricoPane());
+        btn_update.addActionListener(e -> {
+            updateScarico();
+            table.getSelectionModel().clearSelection();
+            dispose();
+        });
+
     }
 
-    public static void initInfoCaricoPane() {
+    public void updateScarico() {
+        Scarico s = new Scarico();
+        s.setCodice(String.valueOf(jcbCodice.getSelectedItem()));
+        s.setDescrizione(jtfDescrizione.getText());
+        s.setDatascarico(jdcData.getDate());
+        s.setQuantita(Integer.valueOf(jspQuantita.getValue().toString()));
+        s.setFornitore(String.valueOf(jcbFornitore.getSelectedItem()));
+        s.setNote(jtaNote.getText());
+
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        Scarico scarico = em.find(Scarico.class, UID);
+        scarico.setCodice(s.getCodice());
+        scarico.setDescrizione(s.getDescrizione());
+        scarico.setDatascarico(s.getDatascarico());
+        scarico.setQuantita(s.getQuantita());
+        scarico.setFornitore(s.getFornitore());
+        scarico.setNote(s.getNote());
+        em.persist(scarico);
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+
+        tableModel.getDataVector().removeAllElements();
+        tableModel.fireTableDataChanged();
+        loadScarico().forEach(sc -> tableModel.addRow(new String[]{String.valueOf(sc.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(sc.getDatascarico()), sc.getCodice(), sc.getDescrizione(), String.valueOf(sc.getQuantita()), String.valueOf(sc.getImporto()).concat(" €"), sc.getFornitore(), sc.getNote()}));
+        table.revalidate();
+        table.repaint();
+        showMessageDialog(null, "Scarico aggiornato", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
     }
 
-    private static boolean codiceFilter(String codice, String textToFilter) {
-        if (textToFilter.isEmpty()) {
-            return true;
-        }
-        return CustomComboRenderer.getProcessDisplayText(codice).toLowerCase().contains(textToFilter.toLowerCase());
-    }
 }

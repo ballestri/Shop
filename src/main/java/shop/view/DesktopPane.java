@@ -1,13 +1,14 @@
 package shop.view;
 
-import org.apache.ibatis.jdbc.ScriptRunner;
-import shop.db.ConnectionManager;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import java.util.*;
+import javax.persistence.*;
 import javax.swing.*;
-import java.sql.*;
+
+import shop.dao.JPAProvider;
+import shop.entity.Credentials;
+
 
 public class DesktopPane extends JFrame {
 
@@ -40,12 +41,55 @@ public class DesktopPane extends JFrame {
         });
     }
 
+
     public static void main(String... args) {
+
         setDefaultLookAndFeelDecorated(true);
         (new DesktopPane()).setVisible(true);
 
+
+        /*
+        Configuration configuration = new Configuration();
+        configuration.configure("application.properties");
+        */
+
+
+
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+
+        em.createNativeQuery("DROP TABLE if exists Credentials", Credentials.class);
+        em.getTransaction().begin();
+
+        Credentials credentials = new Credentials();
+        credentials.setUsername("shop");
+        credentials.setPassword("shop");
+
+        if (em.find(Credentials.class, credentials) == null) {
+            em.persist(credentials);
+            em.getTransaction().commit();
+        }
+
+        em.clear();
+        em.close();
+
+
+        /*
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        session.beginTransaction();
+        Credentials credentials = new Credentials();
+        credentials.setUsername("shop");
+        credentials.setPassword("shop");
+        session.save(credentials);
+
+        //Commit the transaction
+        session.getTransaction().commit();
+        HibernateUtil.shutdown();
+        session.close();
+        */
+
+        /*
         try {
-            Connection con = (new ConnectionManager()).getConnection();
+            Connection con = (new DB_INFO()).getConnection();
             ScriptRunner sr = new ScriptRunner(con);
             BufferedReader is = new BufferedReader(
                     new InputStreamReader(Objects.requireNonNull(DesktopPane.class.getClassLoader().getResourceAsStream("config/shop.sql"))));
@@ -57,9 +101,10 @@ public class DesktopPane extends JFrame {
         }
 
 
+
         // Connessione al DB
         try {
-            ConnectionManager connectionManager= new ConnectionManager();
+            DB_INFO connectionManager= new DB_INFO();
             Connection con = connectionManager.getConnection();
             Statement stmt = con.createStatement();
             String QUERY="INSERT INTO Credentials VALUES ('" + connectionManager.getUsername() + "','" + connectionManager.getPassword() + "')";
@@ -69,6 +114,9 @@ public class DesktopPane extends JFrame {
         } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }
+
+         */
     }
 
 }
+

@@ -2,11 +2,11 @@ package shop.view;
 
 import shop.controller.article.RendererHighlighted;
 import shop.controller.article.RowFilterUtil;
-import shop.model.Fornitore;
+import shop.entity.Fornitore;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
 import shop.view.fornitore.FornitorePane;
-import shop.view.fornitore.FornitorePaneUpdate;
+import shop.view.fornitore.FornitorePaneUPD;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -20,7 +20,7 @@ import java.awt.event.ActionListener;
 
 import static javax.swing.JOptionPane.showMessageDialog;
 import static shop.utils.DesktopRender.FONT_FAMILY;
-import static shop.view.fornitore.controller.FornitoreDbOperation.*;
+import static shop.dao.FornitoreDAO.*;
 
 public class ClientePane extends AContainer implements ActionListener {
 
@@ -36,9 +36,6 @@ public class ClientePane extends AContainer implements ActionListener {
     JScrollPane scrollPane;
 
     protected JButton  btn_add, btn_update, btn_remove;
-
-
-    // Pulsante di carica articolo
     private Font font;
 
     public ClientePane() {
@@ -67,7 +64,7 @@ public class ClientePane extends AContainer implements ActionListener {
 
         JLabel lblFormName = new JLabel("Fornitore");
         lblFormName.setForeground(Color.WHITE);
-        lblFormName.setFont( new Font("HelveticaNeue", Font.BOLD, 28));
+        lblFormName.setFont( new Font(FONT_FAMILY, Font.BOLD, 28));
         toolbar.setBackground(new Color(128, 0, 128));
         lblFormName.setPreferredSize(new Dimension(360, 40));
         toolbar.add(lblFormName,gc);
@@ -145,7 +142,7 @@ public class ClientePane extends AContainer implements ActionListener {
         wrapperPane.add(searchPane, BorderLayout.NORTH);
         wrapperPane.add(clientPane, BorderLayout.CENTER);
 
-        btn_remove.addActionListener(e -> deleteFornitoreFromDB());
+        btn_remove.addActionListener(e -> deleteFornitore());
     }
 
     void buildArticleDetails() {
@@ -157,7 +154,7 @@ public class ClientePane extends AContainer implements ActionListener {
         };
 
         int i=0;
-        for (Fornitore fornitore : loadFornitoreFromDB()) {
+        for (Fornitore fornitore : loadFornitore()) {
             tableModel.addRow(new String[]{String.valueOf(++i), fornitore.getNome(), fornitore.getCognome(), fornitore.getIndirizzo(), fornitore.getComune(), fornitore.getPiva(), fornitore.getMail(), fornitore.getTelefono(), fornitore.getFax(), fornitore.getWebsite(), fornitore.getNote()});
         }
 
@@ -178,7 +175,6 @@ public class ClientePane extends AContainer implements ActionListener {
         tableHeader.setBackground(new Color(39, 55, 70));
         tableHeader.setForeground(Color.WHITE);
 
-
         filterField = RowFilterUtil.createRowFilter(table);
         filterField.setColumns(20);
         RendererHighlighted renderer = new RendererHighlighted(filterField);
@@ -194,7 +190,6 @@ public class ClientePane extends AContainer implements ActionListener {
         table.setPreferredScrollableViewportSize(new Dimension(1150, 420));
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         DesktopRender.resizeColumnWidth(table);
-
 
         scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -250,10 +245,8 @@ public class ClientePane extends AContainer implements ActionListener {
             if (table.getSelectedRow() == -1) {
                 showMessageDialog(null, "Selezionare il fornitore", "Info Dialog", JOptionPane.ERROR_MESSAGE);
             } else
-                new FornitorePaneUpdate(getSelectedFornitore());
+                new FornitorePaneUPD(getSelectedFornitore());
         }
     }
-
-
 
 }

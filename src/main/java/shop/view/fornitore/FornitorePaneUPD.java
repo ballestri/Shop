@@ -1,9 +1,10 @@
 package shop.view.fornitore;
 
-import static shop.utils.DesktopRender.*;
-
-import shop.utils.DesktopRender;
+import shop.dao.JPAProvider;
+import shop.entity.Fornitore;
 import shop.utils.RoundedPanel;
+
+import javax.persistence.EntityManager;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -14,10 +15,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Objects;
 
+import static javax.swing.JOptionPane.showMessageDialog;
+import static shop.utils.DesktopRender.JTF_COLOR;
+import static shop.utils.DesktopRender.formatButton;
 import static shop.view.ClientePane.table;
-import static shop.dao.FornitoreDAO.insertFornitore;
+import static shop.view.ClientePane.tableModel;
 
-public class FornitorePane extends JFrame implements ActionListener {
+public class FornitorePaneUPD extends JFrame implements ActionListener {
 
     private static final int WIDTH = 640;
     private static final int HEIGHT = 840;
@@ -26,11 +30,11 @@ public class FornitorePane extends JFrame implements ActionListener {
     JPanel wrapperPane, actionPane;
     RoundedPanel infoPane, internPane;
     protected JLabel lblNome, lblCognome, lblIndirizzo, lblComune, lblPiva, lblMail, lblTelefono, lblFax, lblSito, lblNote;
-    public static JTextField jtfNome, jtfCognome, jtfIndirizzo, jtfComune, jtfPiva, jtfMail, jtfTelefono, jtfFax, jtfSito;
-    protected JButton btn_save, btn_clear;
-    public static JTextArea jtaNote;
+    protected static JTextField jtfNome, jtfCognome, jtfIndirizzo, jtfComune, jtfPiva, jtfMail, jtfTelefono, jtfFax, jtfSito;
+    protected JButton btn_update, btn_clear;
+    protected static JTextArea jtaNote;
 
-    public FornitorePane() {
+    public FornitorePaneUPD(Fornitore fornitore) {
 
         setTitle("Anagrafica Fornitori");
         setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -46,7 +50,6 @@ public class FornitorePane extends JFrame implements ActionListener {
         ToolTipManager.sharedInstance().setInitialDelay(500);
         ToolTipManager.sharedInstance().setDismissDelay(4000);
         JToolBar toolbar = new JToolBar();
-
         JButton btn_close = new JButton();
         btn_close.setIcon(new ImageIcon(this.getClass().getResource("/images/esci.png")));
         toolbar.add(btn_close);
@@ -55,25 +58,46 @@ public class FornitorePane extends JFrame implements ActionListener {
         toolbar.addSeparator();
         btn_close.addActionListener(e -> dispose());
 
-        font = new Font("HelveticaNeue", Font.BOLD, 17);
-
+        font = new Font("HelveticaNeue", Font.BOLD, 18);
         wrapperPane = new JPanel();
         internPane = new RoundedPanel();
         actionPane = new JPanel();
         infoPane = new RoundedPanel();
 
-        initComponents();
-
+        build();
         add(wrapperPane);
         getContentPane().setBackground(new Color(116, 142, 203));
         toolbar.setFloatable(false);
         setLayout(new BorderLayout());
         add(toolbar, BorderLayout.NORTH);
         setVisible(true);
+
+        setElementsPane(fornitore);
+
+        btn_clear.addActionListener(e -> initFornitorePane());
+        btn_update.addActionListener(e -> {
+            updateFornitore();
+            table.getSelectionModel().clearSelection();
+            dispose();
+        });
     }
 
-    void initComponents() {
-        wrapperPane.setBounds(20, 90, WIDTH - 40, HEIGHT - 160);
+    void setElementsPane(Fornitore fornitore) {
+        jtfNome.setText(fornitore.getNome());
+        jtfCognome.setText(fornitore.getCognome());
+        jtfIndirizzo.setText(fornitore.getIndirizzo());
+        jtfComune.setText(fornitore.getComune());
+        jtfPiva.setText(fornitore.getPiva());
+        jtfPiva.setEditable(false);
+        jtfMail.setText(fornitore.getMail());
+        jtfTelefono.setText(fornitore.getTelefono());
+        jtfFax.setText(fornitore.getFax());
+        jtfSito.setText(fornitore.getWebsite());
+        jtaNote.setText(fornitore.getNote());
+    }
+
+    void build() {
+        wrapperPane.setBounds(20, 90, (WIDTH - 40), (HEIGHT - 160));
         internPane.setPreferredSize(new Dimension(WIDTH - 80, HEIGHT - 340));
         infoPane.setPreferredSize(new Dimension(WIDTH - 80, 60));
 
@@ -93,11 +117,12 @@ public class FornitorePane extends JFrame implements ActionListener {
 
     void buildFornitore() {
         infoPane.setLayout(new GridBagLayout());
-        JLabel lblFormName = new JLabel("Anagrafica fornitori");
-        lblFormName.setFont(new Font("HelveticaNeue", Font.BOLD, 18));
-        infoPane.add(lblFormName);
+        JLabel labelForm = new JLabel("Anagrafica fornitori | Clienti");
+        labelForm.setFont(font);
+        infoPane.add(labelForm);
 
         // pannello interno
+
         lblNome = new JLabel("Nome");
         lblNome.setFont(font);
 
@@ -115,6 +140,7 @@ public class FornitorePane extends JFrame implements ActionListener {
         jtfCognome.setBackground(JTF_COLOR);
         jtfCognome.setBorder(new LineBorder(Color.BLACK));
         jtfCognome.setFont(font);
+
 
         lblIndirizzo = new JLabel("Indirizzo");
         lblIndirizzo.setFont(font);
@@ -182,7 +208,6 @@ public class FornitorePane extends JFrame implements ActionListener {
 
         lblNote = new JLabel("Note");
         lblNote.setFont(font);
-
 
         jtaNote = new JTextArea(3, 18);
         jtaNote.setLineWrap(true);
@@ -336,28 +361,22 @@ public class FornitorePane extends JFrame implements ActionListener {
         gc.anchor = GridBagConstraints.LINE_START;
         internPane.add(jScrollNote, gc);
 
-        btn_save = new JButton(DesktopRender.formatButton("Save"));
-        btn_clear = new JButton(DesktopRender.formatButton("Clear"));
+        btn_update = new JButton(formatButton("Update"));
+        btn_clear = new JButton(formatButton("Clear"));
 
         formatButton(btn_clear);
-        formatButton(btn_save);
+        formatButton(btn_update);
 
         actionPane.setBackground(wrapperPane.getBackground());
         actionPane.setLayout(new GridBagLayout());
-
 
         GridBagConstraints ca = new GridBagConstraints();
         ca.insets = new Insets(5, 10, 15, 28);
 
         actionPane.add(btn_clear, ca);
-        actionPane.add(btn_save, ca);
-
-        btn_clear.addActionListener(e -> initFornitorePane());
-        btn_save.addActionListener(e -> {
-            insertFornitore();
-            dispose();
-        });
+        actionPane.add(btn_update, ca);
     }
+
 
     public static void initFornitorePane() {
         table.getSelectionModel().clearSelection();
@@ -370,8 +389,81 @@ public class FornitorePane extends JFrame implements ActionListener {
         jtfTelefono.setText(null);
         jtfFax.setText(null);
         jtfSito.setText(null);
+        jtaNote.setText(null);
+    }
+
+    private static boolean checkPiva(String piva) {
+
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        Fornitore fornitore = em.find(Fornitore.class, piva);
+        boolean isPresent = em.contains(fornitore);
+        em.clear();
+        em.close();
+        return isPresent;
+    }
+
+
+    public static void updateFornitore() {
+
+        Fornitore s = new Fornitore();
+        s.setNome(jtfNome.getText());
+        s.setCognome(jtfCognome.getText());
+        s.setIndirizzo(jtfIndirizzo.getText());
+        s.setComune(jtfComune.getText());
+        s.setPiva(jtfPiva.getText());
+        s.setMail(jtfMail.getText());
+        s.setTelefono(jtfTelefono.getText());
+        s.setFax(jtfFax.getText());
+        s.setWebsite(jtfSito.getText());
+        s.setNote(jtaNote.getText());
+
+        if (s.getPiva().isEmpty()) {
+            showMessageDialog(null, "Partita IVA fornitore vuoto", "Info Dialog", JOptionPane.ERROR_MESSAGE);
+        } else {
+            if (checkPiva(s.getPiva())) {
+                if (table.getSelectedRow() == -1) {
+                    showMessageDialog(null, "Selezionare il fornitore", "Info Dialog", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+                em.getTransaction().begin();
+                Fornitore fornitore = em.find(Fornitore.class, s.getPiva());
+                fornitore.setNome(s.getNome());
+                fornitore.setCognome(s.getCognome());
+                fornitore.setIndirizzo(s.getIndirizzo());
+                fornitore.setComune(s.getComune());
+                fornitore.setMail(s.getMail());
+                fornitore.setTelefono(s.getTelefono());
+                fornitore.setFax(s.getFax());
+                fornitore.setWebsite(s.getWebsite());
+                fornitore.setNote(s.getNote());
+                fornitore.setPiva(s.getPiva());
+                em.persist(fornitore);
+                em.getTransaction().commit();
+                em.clear();
+                em.close();
+
+                int index = table.getSelectedRow();
+                tableModel.setValueAt(fornitore.getNome(), index, 1);
+                tableModel.setValueAt(fornitore.getCognome(), index, 2);
+                tableModel.setValueAt(fornitore.getIndirizzo(), index, 3);
+                tableModel.setValueAt(fornitore.getComune(), index, 4);
+                tableModel.setValueAt(fornitore.getPiva(), index, 5);
+                tableModel.setValueAt(fornitore.getMail(), index, 6);
+                tableModel.setValueAt(fornitore.getTelefono(), index, 7);
+                tableModel.setValueAt(fornitore.getFax(), index, 8);
+                tableModel.setValueAt(fornitore.getWebsite(), index, 9);
+                tableModel.setValueAt(fornitore.getNote(), index, 10);
+                showMessageDialog(null, "Fornitore aggiornato", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                showMessageDialog(null, "Fornitore inesistente", "Info Dialog", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        initFornitorePane();
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {}
+    public void actionPerformed(ActionEvent e) {
+    }
 }
