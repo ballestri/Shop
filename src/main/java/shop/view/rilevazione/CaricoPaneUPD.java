@@ -9,16 +9,11 @@ import shop.entity.Carico;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
 import static shop.utils.DesktopRender.*;
-import javax.persistence.EntityManager;
+import javax.persistence.*;
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.border.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
+import java.awt.event.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -375,7 +370,7 @@ public class CaricoPaneUPD extends JFrame implements ActionListener {
         em.close();
         tableModel.getDataVector().removeAllElements();
         tableModel.fireTableDataChanged();
-        loadCarico().forEach(ca -> tableModel.addRow(new String[]{String.valueOf(ca.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(ca.getDatacarico()), ca.getCodice(), ca.getDescrizione(), String.valueOf(ca.getQuantita()), String.valueOf(ca.getImporto()).concat(" €"),ca.getFornitore(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(ca.getDatascadenza()), ca.getNote()}));
+        loadCarico().forEach(ca -> tableModel.addRow(new String[]{String.valueOf(ca.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(ca.getDatacarico()), ca.getCodice(), ca.getDescrizione(), String.valueOf(ca.getQuantita()), formatMoney(ca.getImporto()),ca.getFornitore(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(ca.getDatascadenza()), ca.getNote()}));
         table.revalidate();
         table.repaint();
         showMessageDialog(null, "Carico aggiornato", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);

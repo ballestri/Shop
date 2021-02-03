@@ -37,7 +37,7 @@ public class CaricoDAO {
             tableModel.removeRow(index);
             tableModel.getDataVector().removeAllElements();
             tableModel.fireTableDataChanged();
-            loadCarico().forEach(ca -> tableModel.addRow(new String[]{String.valueOf(ca.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(ca.getDatacarico()), ca.getCodice(), ca.getDescrizione(), String.valueOf(ca.getQuantita()), String.valueOf(ca.getImporto()).concat(" €"), ca.getFornitore(), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatascadenza()), ca.getNote()}));
+            loadCarico().forEach(ca -> tableModel.addRow(new String[]{String.valueOf(ca.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(ca.getDatacarico()), ca.getCodice(), ca.getDescrizione(), String.valueOf(ca.getQuantita()), formatMoney(ca.getImporto()), ca.getFornitore(), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatascadenza()), ca.getNote()}));
             table.repaint();
             table.revalidate();
         }
@@ -48,7 +48,7 @@ public class CaricoDAO {
 
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
-        TypedQuery<Object[]> query = em.createQuery("SELECT c.UID, c.codice,a.descrizione,c.datacarico,c.quantita,(c.quantita*a.prezzo) as importo ,c.fornitore,c.datascadenza, c.note FROM Carico c JOIN Articolo a ON (c.codice=a.codice) and c.isDeleted=false", Object[].class);
+        TypedQuery<Object[]> query = em.createQuery("SELECT c.UID, c.codice,a.descrizione,c.datacarico,c.quantita,round((c.quantita*a.prezzo),2) as importo ,c.fornitore,c.datascadenza, c.note FROM Carico c JOIN Articolo a ON (c.codice=a.codice) and c.isDeleted=false", Object[].class);
         List<Object[]> items = query.getResultList();
         ArrayList<Carico> results = new ArrayList<>();
         em.getTransaction().commit();
@@ -62,7 +62,7 @@ public class CaricoDAO {
             carico.setCodice((String) value[1]);
             carico.setDescrizione((String) value[2]);
             carico.setQuantita(Integer.valueOf(String.valueOf(value[4])));
-            carico.setImporto(BigDecimal.valueOf((Double) value[5]));
+            carico.setImporto(Double.valueOf(String.valueOf(value[5])));
             carico.setFornitore(String.valueOf(value[6]));
             carico.setDatacarico((Date) value[3]);
             carico.setDatascadenza((Date) value[7]);
@@ -95,20 +95,20 @@ public class CaricoDAO {
             a.setImporto(calcolateImporto(carico.getUID()));
             em.getTransaction().commit();
             em.close();
-            tableModel.addRow(new String[]{String.valueOf(carico.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(carico.getDatacarico()), carico.getCodice(), carico.getDescrizione(), String.valueOf(carico.getQuantita()), String.valueOf(carico.getImporto()).concat(" €"), carico.getFornitore(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(carico.getDatascadenza()), carico.getNote()});
+            tableModel.addRow(new String[]{String.valueOf(carico.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(carico.getDatacarico()), carico.getCodice(), carico.getDescrizione(), String.valueOf(carico.getQuantita()), formatMoney(carico.getImporto()), carico.getFornitore(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(carico.getDatascadenza()), carico.getNote()});
             showMessageDialog(null, "Carico inserito", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
-    private static BigDecimal calcolateImporto(Integer UID) {
+    private static Double calcolateImporto(Integer UID) {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
-        TypedQuery<Double> query = em.createQuery("SELECT (c.quantita*a.prezzo) as importo FROM Articolo a join Carico c on (c.codice = a.codice) WHERE c.UID=?1", Double.class);
+        TypedQuery<BigDecimal> query = em.createQuery("SELECT round((c.quantita*a.prezzo),2) as importo FROM Articolo a join Carico c on (c.codice = a.codice) WHERE c.UID=?1", BigDecimal.class);
         query.setParameter(1, UID);
-        BigDecimal importo = BigDecimal.valueOf(query.getSingleResult());
+        BigDecimal importo = query.getSingleResult();
         em.getTransaction().commit();
         em.clear();
         em.close();
-        return importo;
+        return importo.doubleValue();
     }
 }

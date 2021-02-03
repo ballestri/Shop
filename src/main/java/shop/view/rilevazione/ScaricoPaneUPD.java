@@ -92,7 +92,7 @@ public class ScaricoPaneUPD extends JFrame implements ActionListener {
         jtfDescrizione.setText(scarico.getDescrizione());
         jtfDescrizione.setEditable(false);
         jspQuantita.setValue(scarico.getQuantita());
-        jcbFornitore.setSelectedItem(String.valueOf(jcbFornitore.getSelectedItem()));
+        jcbFornitore.setSelectedItem(scarico.getFornitore());
         jtaNote.setText(scarico.getNote());
         jdcData.setDate(scarico.getDatascarico());
     }
@@ -340,7 +340,7 @@ public class ScaricoPaneUPD extends JFrame implements ActionListener {
 
         tableModel.getDataVector().removeAllElements();
         tableModel.fireTableDataChanged();
-        loadScarico().forEach(sc -> tableModel.addRow(new String[]{String.valueOf(sc.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(sc.getDatascarico()), sc.getCodice(), sc.getDescrizione(), String.valueOf(sc.getQuantita()), String.valueOf(sc.getImporto()).concat(" €"), sc.getFornitore(), sc.getNote()}));
+        loadScarico().forEach(sc -> tableModel.addRow(new String[]{String.valueOf(sc.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(sc.getDatascarico()), sc.getCodice(), sc.getDescrizione(), String.valueOf(sc.getQuantita()), formatMoney(sc.getImporto()), sc.getFornitore(), sc.getNote()}));
         table.revalidate();
         table.repaint();
         showMessageDialog(null, "Scarico aggiornato", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);

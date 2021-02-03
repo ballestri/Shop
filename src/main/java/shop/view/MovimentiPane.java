@@ -27,8 +27,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static javax.swing.JOptionPane.showMessageDialog;
-import static shop.utils.DesktopRender.DATE_FORMAT;
-import static shop.utils.DesktopRender.FONT_FAMILY;
+import static shop.utils.DesktopRender.*;
 
 public class MovimentiPane extends AContainer implements ActionListener {
 
@@ -429,7 +428,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
                 jtfCategoria.setText(articolo.getCategoria().getCategoria());
                 jtfPosizione.setText(articolo.getPosizione().getPosizione());
                 jtfUnita.setText(articolo.getUnita().getUnita());
-                jtfPrezzo.setText(String.valueOf(articolo.getPrezzo()).concat(" €"));
+                jtfPrezzo.setText(formatMoney(articolo.getPrezzo()));
                 jtfScorta.setText(String.valueOf(articolo.getScorta()));
                 jtfProvenienza.setText(articolo.getProvenienza());
                 jtfDescrizione.setEditable(false);
@@ -491,13 +490,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
         table.getColumnModel().getColumn(2).setMinWidth(105);
         table.getColumnModel().getColumn(3).setMinWidth(220);
         table.setAutoCreateRowSorter(true);
-
-        scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setPreferredSize(new Dimension(650, 500));
-        scrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-        scrollPane.setViewportView(table);
-        scrollPane.getViewport().setBackground(table.getBackground());
+        table.setFocusable(false);
 
         TableRowSorter<TableModel> ts = new TableRowSorter<>(table.getModel());
         table.setRowSorter(ts);
@@ -571,7 +564,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
         jtfCategoria.setText(articolo.getCategoria().getCategoria());
         jtfPosizione.setText(articolo.getPosizione().getPosizione());
         jtfUnita.setText(articolo.getUnita().getUnita());
-        jtfPrezzo.setText(String.valueOf(articolo.getPrezzo()).concat(" €"));
+        jtfPrezzo.setText(formatMoney(articolo.getPrezzo()));
         jtfScorta.setText(String.valueOf(articolo.getScorta()));
         jtfProvenienza.setText(articolo.getProvenienza());
         jtfDescrizione.setEditable(false);

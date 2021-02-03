@@ -33,6 +33,7 @@ public class FornitorePaneUPD extends JFrame implements ActionListener {
     protected static JTextField jtfNome, jtfCognome, jtfIndirizzo, jtfComune, jtfPiva, jtfMail, jtfTelefono, jtfFax, jtfSito;
     protected JButton btn_update, btn_clear;
     protected static JTextArea jtaNote;
+    protected JScrollPane jScrollNote;
 
     public FornitorePaneUPD(Fornitore fornitore) {
 
@@ -58,7 +59,7 @@ public class FornitorePaneUPD extends JFrame implements ActionListener {
         toolbar.addSeparator();
         btn_close.addActionListener(e -> dispose());
 
-        font = new Font("HelveticaNeue", Font.BOLD, 18);
+        font = new Font("HelveticaNeue", Font.BOLD, 16);
         wrapperPane = new JPanel();
         internPane = new RoundedPanel();
         actionPane = new JPanel();
@@ -94,13 +95,15 @@ public class FornitorePaneUPD extends JFrame implements ActionListener {
         jtfFax.setText(fornitore.getFax());
         jtfSito.setText(fornitore.getWebsite());
         jtaNote.setText(fornitore.getNote());
+        jScrollNote.setPreferredSize(new Dimension(260,80));
+        jScrollNote.revalidate();
+        jScrollNote.repaint();
     }
 
     void build() {
         wrapperPane.setBounds(20, 90, (WIDTH - 40), (HEIGHT - 160));
         internPane.setPreferredSize(new Dimension(WIDTH - 80, HEIGHT - 340));
         infoPane.setPreferredSize(new Dimension(WIDTH - 80, 60));
-
         wrapperPane.setBackground(new Color(39, 55, 70));
         Border line = BorderFactory.createLineBorder(Color.WHITE);
         Border empty = new EmptyBorder(5, 10, 5, 10);
@@ -169,7 +172,6 @@ public class FornitorePaneUPD extends JFrame implements ActionListener {
         jtfPiva.setBorder(new LineBorder(Color.BLACK));
         jtfPiva.setFont(font);
 
-
         lblMail = new JLabel("Mail");
         lblMail.setFont(font);
 
@@ -218,9 +220,8 @@ public class FornitorePaneUPD extends JFrame implements ActionListener {
         jtaNote.setBorder(new LineBorder(Color.BLACK));
         jtaNote.setFont(font);
 
-        JScrollPane jScrollNote = new JScrollPane(jtaNote, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+        jScrollNote = new JScrollPane(jtaNote, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
 
         internPane.setLayout(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
@@ -455,6 +456,9 @@ public class FornitorePaneUPD extends JFrame implements ActionListener {
                 tableModel.setValueAt(fornitore.getFax(), index, 8);
                 tableModel.setValueAt(fornitore.getWebsite(), index, 9);
                 tableModel.setValueAt(fornitore.getNote(), index, 10);
+                tableModel.fireTableDataChanged();
+                table.revalidate();
+                table.repaint();
                 showMessageDialog(null, "Fornitore aggiornato", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 showMessageDialog(null, "Fornitore inesistente", "Info Dialog", JOptionPane.ERROR_MESSAGE);

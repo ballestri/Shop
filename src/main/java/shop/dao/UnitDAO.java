@@ -28,12 +28,42 @@ public class UnitDAO {
         return rowCnt.intValue();
     }
 
+    public static Integer restoreUnita(String unita) {
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        Query query = em.createNativeQuery("SELECT count(*) FROM UNITA WHERE isDeleted=true and unita=:unita")
+                .setParameter("unita", unita)
+                .unwrap(NativeQuery.class);
+        BigInteger rowCnt = (BigInteger) query.getSingleResult();
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return rowCnt.intValue();
+    }
+
     public static void insertUnita() {
         Unita unita = new Unita(fieldUnita.getText(), false);
         if (checkUnita(unita.getUnita()) > 0) {
             showMessageDialog(null, "Unita già presente", "Info Dialog", JOptionPane.ERROR_MESSAGE);
         } else if (unita.getUnita().isEmpty()) {
             showMessageDialog(null, "Unita vuota", "Info Dialog", JOptionPane.ERROR_MESSAGE);
+        } else if (restoreUnita(unita.getUnita()) > 0) {
+            EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+            em.getTransaction().begin();
+            Unita ca = em.find(Unita.class, unita.getUnita());
+            ca.setDeleted(false);
+            em.persist(ca);
+            em.getTransaction().commit();
+            em.clear();
+            em.close();
+            tableModel.getDataVector().removeAllElements();
+            tableModel.fireTableDataChanged();
+            int i = 0;
+            for (Unita c : loadUnita()) {
+                tableModel.addRow(new String[]{String.valueOf(++i), c.getUnita()});
+            }
+            table.repaint();
+            table.revalidate();
         } else {
             EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
@@ -47,7 +77,6 @@ public class UnitDAO {
     }
 
     public static ArrayList<Unita> loadUnita() {
-
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
         TypedQuery<Unita> query = em.createQuery("SELECT u FROM Unita u WHERE u.isDeleted=false", Unita.class);
@@ -60,14 +89,28 @@ public class UnitDAO {
         return new ArrayList<>(results);
     }
 
+    public static Integer getCountUnitArticolo(String unita) {
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        Query query = em.createNativeQuery("SELECT count(*) FROM ARTICOLO a WHERE a.isDeleted= false and a.unita=:unita")
+                .setParameter("unita", unita)
+                .unwrap(NativeQuery.class);
+        Integer rowCnt = Integer.parseInt(String.valueOf(query.getSingleResult()));
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return rowCnt;
+    }
+
     public static void deleteUnita() {
 
-        if (table.getSelectedRow() == -1) {
+        int index = table.getSelectedRow();
+        if (index == -1) {
             showMessageDialog(null, "Selezionare una unita", "Info Dialog", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        if (table.getSelectedRow() != -1) {
-            int index = table.getSelectedRow();
+
+        if ((getCountUnitArticolo(String.valueOf(table.getValueAt(index, 1))) == 0)) {
             EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
             Unita unita = em.find(Unita.class, table.getValueAt(index, 1));
@@ -76,9 +119,11 @@ public class UnitDAO {
             em.clear();
             em.close();
             tableModel.removeRow(index);
-        }
-        IntStream.range(0, tableModel.getRowCount()).forEachOrdered(index -> tableModel.setValueAt(index + 1, index, 0));
-        showMessageDialog(null, "Cancellazione effettuata", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
+
+            IntStream.range(0, tableModel.getRowCount()).forEachOrdered(i -> tableModel.setValueAt(i + 1, i, 0));
+            showMessageDialog(null, "Cancellazione effettuata", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
+        } else
+            showMessageDialog(null, "Impossible cancellare: Ci articoli associati", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static ArrayList<String> getAllUnita() {
@@ -92,6 +137,7 @@ public class UnitDAO {
         em.close();
         return new ArrayList<>(results);
     }
+
 
     public static Integer getUnitaCount() {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();

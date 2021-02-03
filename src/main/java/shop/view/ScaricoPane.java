@@ -19,9 +19,8 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static javax.swing.JOptionPane.showMessageDialog;
-import static shop.utils.DesktopRender.DATE_FORMAT;
-import static shop.utils.DesktopRender.FONT_FAMILY;
 import static shop.dao.ScaricoDAO.*;
+import static shop.utils.DesktopRender.*;
 
 public class ScaricoPane extends AContainer implements ActionListener {
 
@@ -30,7 +29,7 @@ public class ScaricoPane extends AContainer implements ActionListener {
     // pannello interno
     private JPanel internPane, wrapperPane, clientPane;
     private RoundedPanel searchPane;
-    private static final Color JTF_COLOR = new Color(46, 134, 193);
+    //private static final Color JTF_COLOR = new Color(46, 134, 193);
 
     public static DefaultTableModel tableModel;
     JTableHeader tableHeader;
@@ -198,22 +197,21 @@ public class ScaricoPane extends AContainer implements ActionListener {
             }
         };
 
-        loadScarico().forEach(scarico -> tableModel.addRow(new String[]{String.valueOf(scarico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(scarico.getDatascarico()), scarico.getCodice(), scarico.getDescrizione(), String.valueOf(scarico.getQuantita()), String.valueOf(scarico.getImporto()).concat(" €"), scarico.getFornitore(), scarico.getNote()}));
-
+        loadScarico().forEach(scarico -> tableModel.addRow(new String[]{String.valueOf(scarico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(scarico.getDatascarico()), scarico.getCodice(), scarico.getDescrizione(), String.valueOf(scarico.getQuantita()), formatMoney(scarico.getImporto()), scarico.getFornitore(), scarico.getNote()}));
 
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-                Component returnComp = super.prepareRenderer(renderer, row, column);
-                int rendererWidth = returnComp.getPreferredSize().width;
+                Component component = super.prepareRenderer(renderer, row, column);
+                int rendererWidth = component.getPreferredSize().width;
                 TableColumn tableColumn = getColumnModel().getColumn(column);
                 tableColumn.setPreferredWidth(Math.max(rendererWidth + getIntercellSpacing().width, tableColumn.getPreferredWidth()));
-                if (!returnComp.getBackground().equals(getSelectionBackground())) {
-                    returnComp.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
+                if (!component.getBackground().equals(getSelectionBackground())) {
+                    component.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
                 }
-                ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
+                ((JLabel) component).setHorizontalAlignment(JLabel.CENTER);
                 if (column == 2 || column == 4|| column == 5)
-                    returnComp.setFont(font);
-                return returnComp;
+                    component.setFont(font);
+                return component;
             }
         };
 
@@ -237,12 +235,9 @@ public class ScaricoPane extends AContainer implements ActionListener {
 
         table.getColumnModel().getColumn(0).setMinWidth(0);
         table.getColumnModel().getColumn(0).setMaxWidth(0);
-
         table.getColumnModel().getColumn(1).setMinWidth(150);
-
         table.getColumnModel().getColumn(2).setMinWidth(150);
         table.getColumnModel().getColumn(2).setMaxWidth(150);
-
         table.getColumnModel().getColumn(3).setMinWidth(260);
         table.getColumnModel().getColumn(4).setMinWidth(80);
         table.getColumnModel().getColumn(5).setMinWidth(220);
@@ -283,7 +278,6 @@ public class ScaricoPane extends AContainer implements ActionListener {
         if (table.getSelectedRow() >= 0) {
             int index = table.getSelectedRow();
             scarico.setUID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
-
             try {
                 scarico.setDatascarico((new SimpleDateFormat(DATE_FORMAT)).parse(table.getValueAt(index, 1).toString()));
             } catch (ParseException e) {
@@ -292,8 +286,8 @@ public class ScaricoPane extends AContainer implements ActionListener {
             scarico.setCodice(String.valueOf(table.getValueAt(index, 2)));
             scarico.setDescrizione(String.valueOf(table.getValueAt(index, 3)));
             scarico.setQuantita(Integer.valueOf(String.valueOf(table.getValueAt(index, 4))));
-            scarico.setFornitore(String.valueOf(table.getValueAt(index, 5)));
-            scarico.setNote(String.valueOf(table.getValueAt(index, 6)));
+            scarico.setFornitore(String.valueOf(table.getValueAt(index, 6)));
+            scarico.setNote(String.valueOf(table.getValueAt(index, 7)));
         }
         return scarico;
     }
@@ -327,7 +321,6 @@ public class ScaricoPane extends AContainer implements ActionListener {
         table.setRowSorter(sorter);
         sorter.setRowFilter(null);
     }
-
 
     public static List<Date> getDatesBetween(Date startDate, Date endDate) {
 

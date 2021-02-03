@@ -224,3 +224,5 @@
 /target/classes/shop/view/articolo/UnitView$1.class
 /target/classes/shop/view/articolo/UnitView$2.class
 /target/classes/shop/view/articolo/UnitView.class
+/.idea/libraries/Maven__org_ehcache_ehcache_3_9_0.xml
+/.idea/libraries/Maven__org_ehcache_ehcache_transactions_3_9_0.xml

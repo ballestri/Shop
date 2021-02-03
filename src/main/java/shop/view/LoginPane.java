@@ -10,6 +10,8 @@ import javax.persistence.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import static shop.utils.DesktopRender.FONT_FAMILY;
+
 public class LoginPane extends AContainer implements ActionListener {
 
     protected Font font;
@@ -50,7 +52,7 @@ public class LoginPane extends AContainer implements ActionListener {
         loginPanel.setLayout(new GridBagLayout());
         loginPanel.setBackground(new Color(128, 0, 128));
         loginPanel.setPreferredSize(new Dimension(825, 100));
-        font = new Font("HelveticaNeue", Font.BOLD, 36);
+        font = new Font(FONT_FAMILY, Font.BOLD, 36);
         lblFormName = new JLabel("Login Form");
         lblFormName.setForeground(Color.WHITE);
         lblFormName.setFont(font);
@@ -58,7 +60,7 @@ public class LoginPane extends AContainer implements ActionListener {
 
         wrapperPane.add(loginPanel, BorderLayout.NORTH);
 
-        font = new Font(DesktopRender.FONT_FAMILY, Font.BOLD, 28);
+        font = new Font(FONT_FAMILY, Font.BOLD, 28);
         lblUsername = new JLabel("Username");
         lblPassword = new JLabel("Password");
         jtfUsername = new JTextField();
@@ -68,7 +70,7 @@ public class LoginPane extends AContainer implements ActionListener {
         lblPassword.setForeground(Color.WHITE);
         lblPassword.setFont(font);
 
-        font = new Font(DesktopRender.FONT_FAMILY, Font.BOLD, 20);
+        font = new Font(FONT_FAMILY, Font.BOLD, 20);
         jtfUsername.setBorder(new LineBorder(Color.BLACK));
         jtfUsername.setCaretColor(new Color(255, 255, 255));
         jtfUsername.setBorder(new EmptyBorder(0, 20, 0, 0));
@@ -125,7 +127,7 @@ public class LoginPane extends AContainer implements ActionListener {
         informationPanel.add(jtfPassword, gc);
 
         // Aggiungo il pulsante di carica
-        font = new Font("HelveticaNeue", Font.BOLD, 32);
+        font = new Font(FONT_FAMILY, Font.BOLD, 32);
         btn_login = new CreateRoundButton(DesktopRender.formatButton("Sign In"));
         btn_login.setPreferredSize(new Dimension(260, 260));
         btn_login.setBackground(new Color(0, 128, 128));
@@ -150,7 +152,6 @@ public class LoginPane extends AContainer implements ActionListener {
         container.setLayout(new BorderLayout());
         container.add(toolbar, BorderLayout.NORTH);
     }
-
 
     Credentials checkCredentials() {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();

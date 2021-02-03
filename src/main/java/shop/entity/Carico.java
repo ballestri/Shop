@@ -1,7 +1,6 @@
 package shop.entity;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
@@ -28,7 +27,7 @@ public class Carico {
     private Integer quantita;
 
     @Column(scale = 2,precision = 9)
-    private BigDecimal importo;
+    private Double importo;
 
     @Column
     private String fornitore;
@@ -83,11 +82,11 @@ public class Carico {
         this.quantita = quantita;
     }
 
-    public BigDecimal getImporto() {
+    public Double getImporto() {
         return importo;
     }
 
-    public void setImporto(BigDecimal importo) {
+    public void setImporto(Double importo) {
         this.importo = importo;
     }
 

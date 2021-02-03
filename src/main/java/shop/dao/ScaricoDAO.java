@@ -3,15 +3,16 @@ package shop.dao;
 import shop.entity.Scarico;
 import shop.utils.DesktopRender;
 
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.swing.*;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import static javax.swing.JOptionPane.showMessageDialog;
+import static shop.utils.DesktopRender.formatMoney;
 import static shop.view.ScaricoPane.*;
 import static shop.view.rilevazione.InfoScaricoPane.*;
 
@@ -44,7 +45,7 @@ public class ScaricoDAO {
 
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
-        TypedQuery<Object[]> query = em.createQuery("SELECT s.UID, s.codice,a.descrizione,s.datascarico,s.quantita,(s.quantita*a.prezzo) as importo ,s.fornitore, s.note FROM Scarico s JOIN Articolo a ON (s.codice=a.codice) and s.isDeleted=false", Object[].class);
+        TypedQuery<Object[]> query = em.createQuery("SELECT s.UID, s.codice,a.descrizione,s.datascarico,s.quantita,round((s.quantita*a.prezzo),2) as importo ,s.fornitore, s.note FROM Scarico s JOIN Articolo a ON (s.codice=a.codice) and s.isDeleted=false", Object[].class);
         List<Object[]> items = query.getResultList();
         em.getTransaction().commit();
         em.clear();
@@ -90,7 +91,7 @@ public class ScaricoDAO {
             em.getTransaction().commit();
             em.clear();
             em.close();
-            tableModel.addRow(new String[]{String.valueOf(scarico.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(scarico.getDatascarico()), scarico.getCodice(), scarico.getDescrizione(), String.valueOf(scarico.getQuantita()), String.valueOf(scarico.getImporto()).concat(" €"), scarico.getFornitore(), scarico.getNote()});
+            tableModel.addRow(new String[]{String.valueOf(scarico.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(scarico.getDatascarico()), scarico.getCodice(), scarico.getDescrizione(), String.valueOf(scarico.getQuantita()),formatMoney(scarico.getImporto()), scarico.getFornitore(), scarico.getNote()});
             showMessageDialog(null, "Scarico inserito", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
         }
     }
@@ -98,13 +99,13 @@ public class ScaricoDAO {
     private static Double calcolateImporto(Integer UID) {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
-        TypedQuery<Double> query = em.createQuery("SELECT (s.quantita*a.prezzo) as importo FROM Articolo a join Scarico s on (s.codice = a.codice) and s.UID=?1", Double.class);
+        TypedQuery<BigDecimal> query = em.createQuery("SELECT round((s.quantita*a.prezzo),2) as importo FROM Articolo a join Scarico s on (s.codice = a.codice) and s.UID=?1", BigDecimal.class);
         query.setParameter(1, UID);
-        Double importo = query.getSingleResult();
+        BigDecimal importo = query.getSingleResult();
         em.getTransaction().commit();
         em.clear();
         em.close();
-        return importo;
+        return importo.doubleValue();
     }
 
 }

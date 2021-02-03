@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.Date;
 
 import static javax.swing.JOptionPane.*;
+import static shop.utils.DesktopRender.formatMoney;
 import static shop.utils.DesktopRender.formatProductCode;
 import static shop.view.ArticoloPane.*;
 
@@ -47,7 +48,7 @@ public class ArticleDAO {
         articolo.setCategoria(new Categoria(String.valueOf(jcbCategoria.getSelectedItem()), false));
         articolo.setPosizione(new Posizione(String.valueOf(jcbPosizione.getSelectedItem()), false));
         articolo.setUnita(new Unita(String.valueOf(jcbUnita.getSelectedItem()), false));
-        articolo.setPrezzo(Double.valueOf(jtfCurrency.getText().replace("€", "").replace(",", ".")));
+        articolo.setPrezzo(Double.valueOf(String.valueOf(jtfCurrency.getValue())));
         articolo.setScorta(Integer.valueOf(jspScorta.getValue().toString()));
         articolo.setProvenienza(jtfProvenienza.getText());
         articolo.setDataIns(new Date());
@@ -68,7 +69,7 @@ public class ArticleDAO {
             em.getTransaction().commit();
             em.clear();
             em.close();
-            tableModel.addRow(new String[]{String.valueOf(articolo.getUID()), formatProductCode(articolo.getUID()), articolo.getDescrizione(), String.valueOf(articolo.getCategoria().getCategoria()), String.valueOf(articolo.getPosizione().getPosizione()), String.valueOf(articolo.getUnita().getUnita()), String.valueOf(articolo.getPrezzo()).replace(".", ",").concat(" €"), String.valueOf(articolo.getScorta()), articolo.getProvenienza(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(articolo.getDataIns())});
+            tableModel.addRow(new String[]{String.valueOf(articolo.getUID()), formatProductCode(articolo.getUID()), articolo.getDescrizione(), String.valueOf(articolo.getCategoria().getCategoria()), String.valueOf(articolo.getPosizione().getPosizione()), String.valueOf(articolo.getUnita().getUnita()), formatMoney(articolo.getPrezzo()), String.valueOf(articolo.getScorta()), articolo.getProvenienza(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(articolo.getDataIns())});
             showMessageDialog(null, "Articolo inserito", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
             refreshMovimentTable();
         }
@@ -82,16 +83,13 @@ public class ArticleDAO {
 
     public static void updateArticle(Articolo item) {
 
-        //System.out.println(item.getPosizione()+"===="+item.getCategoria()+"==="+item.getUnita());
-
-
         Articolo s = new Articolo();
         s.setUID(item.getUID());
         s.setDescrizione(jtfDescrizione.getText());
         s.setCategoria(new Categoria(String.valueOf(jcbCategoria.getSelectedItem()), false));
         s.setPosizione(new Posizione(String.valueOf(jcbPosizione.getSelectedItem()), false));
         s.setUnita(new Unita(String.valueOf(jcbUnita.getSelectedItem()), false));
-        s.setPrezzo(Double.valueOf(jtfCurrency.getText().replace("€", "").replace(",", ".")));
+        s.setPrezzo(Double.valueOf(jtfCurrency.getText().trim().replace("€", "").replace(",", ".")));
         s.setScorta(Integer.valueOf(jspScorta.getValue().toString()));
         s.setProvenienza(jtfProvenienza.getText());
 
@@ -107,7 +105,6 @@ public class ArticleDAO {
 
             alignArticoloPost();
 
-
             EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
             Articolo article = em.find(Articolo.class, s.getUID());
@@ -120,36 +117,20 @@ public class ArticleDAO {
             article.setPosizione(posizione);
             Unita unita = new Unita(String.valueOf(s.getUnita().getUnita()), false);
             article.setUnita(unita);
-
-           // System.out.println("===============  "+s.getCategoria()+"---"+s.getUnita()+"==="+s.getPosizione());
             article.setPrezzo(s.getPrezzo());
             article.setScorta(s.getScorta());
             article.setProvenienza(s.getProvenienza());
-
-           // System.out.println("===============  "+categoria.getCategoria()+"---"+unita.getUnita()+"==="+posizione.getPosizione());
-
-
-
-            /*
-            em.persist(unita);
-            em.persist(categoria);
-            em.persist(posizione);
-            */
-
-
             em.persist(article);
             em.getTransaction().commit();
             em.clear();
             em.close();
-
-
 
             int index = table.getSelectedRow();
             tableModel.setValueAt(article.getDescrizione(), index, 2);
             tableModel.setValueAt(categoria.getCategoria(), index, 3);
             tableModel.setValueAt(posizione.getPosizione(), index, 4);
             tableModel.setValueAt(unita.getUnita(), index, 5);
-            tableModel.setValueAt(String.valueOf(article.getPrezzo()).replace(".", ",").concat(" €"), index, 6);
+            tableModel.setValueAt(formatMoney(article.getPrezzo()), index, 6);
             tableModel.setValueAt(article.getScorta(), index, 7);
             tableModel.setValueAt(article.getProvenienza(), index, 8);
 

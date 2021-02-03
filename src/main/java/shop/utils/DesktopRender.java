@@ -13,6 +13,7 @@ public class DesktopRender {
     public static final Color JTF_COLOR = new Color(169, 204, 227);
     public static final String DATE_FORMAT = "dd/MM/yyyy";
     public static final String DATE_FORMAT_TIME = "dd/MM/yyyy HH:mm:ss";
+    public static final Integer CODE_LENGTH= 8;
 
     private static final Integer CODICE_LENGTH = 6;
 
@@ -39,9 +40,13 @@ public class DesktopRender {
     }
 
     public static String formatProductCode(Integer UID) {
-        return StringUtils.leftPad(padLeftZeros(String.valueOf(UID)), 8, "00");
+        return StringUtils.leftPad(padLeftZeros(String.valueOf(UID)), CODE_LENGTH, "00");
     }
 
+    public static String formatMoney(Double value){
+        String[] val=String.valueOf(value).split("\\.");
+        return StringUtils.joinWith(",",val[0],StringUtils.rightPad(val[1],3-val[1].length(),"0")).concat(" €");
+    }
     public static String formatButton(String first) {
         return "<html><center>" + first + "</center></html>";
     }

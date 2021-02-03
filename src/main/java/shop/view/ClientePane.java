@@ -240,6 +240,7 @@ public class ClientePane extends AContainer implements ActionListener {
             container.add(new AnagraficaPane().getPanel());
             container.repaint();
         } else if (e.getSource() == btn_add) {
+            table.getSelectionModel().clearSelection();
             new FornitorePane();
         } else if (e.getSource() == btn_update) {
             if (table.getSelectedRow() == -1) {

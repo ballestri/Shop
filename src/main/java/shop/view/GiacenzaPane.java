@@ -6,19 +6,16 @@ import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.stream.IntStream;
 
 import static java.util.Objects.requireNonNull;
 import static shop.utils.DesktopRender.FONT_FAMILY;
 import static shop.dao.GiacenzaDAO.getAllGiacenza;
+import static shop.utils.DesktopRender.JTF_COLOR;
 
 public class GiacenzaPane extends AContainer implements ActionListener {
 
@@ -30,10 +27,7 @@ public class GiacenzaPane extends AContainer implements ActionListener {
     JTableHeader tableHeader;
     public static JTable table;
     JScrollPane scrollPane;
-
     protected JButton btn_refresh;
-
-    // Pulsante di carica articolo
     private Font font;
 
     public GiacenzaPane() {
@@ -115,14 +109,14 @@ public class GiacenzaPane extends AContainer implements ActionListener {
     }
 
     void buildArticleDetails() {
-        String[] header = {"Codice", "Descrizione", "Giacenza", "Scorta", "Riordino", "Tot. carico", "Tot. scarico", "Unita'"};
+        String[] header = {"Codice", "Descrizione", "Giacenza", "Scorta", "Riordino", "Totale carico", "Totale scarico", "Unita'"};
         tableModel = new DefaultTableModel(new Object[][]{}, header) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
-        getAllGiacenza().forEach(giacenza -> tableModel.addRow(new String[]{giacenza.getCodice(), giacenza.getDescrizione(), String.valueOf(giacenza.getGiacenza()), String.valueOf(giacenza.getScorta()), String.valueOf(giacenza.getRiordino()), String.valueOf(giacenza.getTotcarico()), String.valueOf(giacenza.getTotscarico()), giacenza.getUnita()}));
+        getAllGiacenza().forEach(ga -> tableModel.addRow(new String[]{ga.getCodice(), ga.getDescrizione(), String.valueOf(ga.getGiacenza()), String.valueOf(ga.getScorta()), String.valueOf(ga.getRiordino()), String.valueOf(ga.getTotcarico()), String.valueOf(ga.getTotscarico()), ga.getUnita()}));
 
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -134,11 +128,11 @@ public class GiacenzaPane extends AContainer implements ActionListener {
                     returnComp.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
                 }
 
-                if (column>=1 && column<=6) {
+                if (column >= 2 && column <= 6) {
                     ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
-                    returnComp.setBackground((row % 2 == 0 ? DesktopRender.JTF_COLOR : Color.WHITE));
-                } else if (column == 0) {
+                    returnComp.setBackground((row % 2 == 0 ? JTF_COLOR: Color.WHITE));
                     returnComp.setFont(font);
+                } else if (column == 0 || column == 1) {
                     ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
                 } else
                     ((JLabel) returnComp).setHorizontalAlignment(JLabel.LEFT);
@@ -149,8 +143,8 @@ public class GiacenzaPane extends AContainer implements ActionListener {
         tableHeader = table.getTableHeader();
         tableHeader.setBackground(new Color(39, 55, 70));
         tableHeader.setForeground(Color.WHITE);
-        table.getTableHeader().setReorderingAllowed(false);
-        table.getTableHeader().setFont(font);
+        tableHeader.setReorderingAllowed(false);
+        tableHeader.setFont(font);
 
         IntStream.rangeClosed(2, 6).mapToObj(columnIndex -> table.getTableHeader().getColumnModel().getColumn(columnIndex)).forEachOrdered(tc -> tc.setHeaderRenderer(new WonHeaderRenderer()));
 
@@ -160,8 +154,8 @@ public class GiacenzaPane extends AContainer implements ActionListener {
         table.setDefaultRenderer(Object.class, renderer);
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
         table.setFillsViewportHeight(true);
-        table.getTableHeader().setReorderingAllowed(false);
-        table.getTableHeader().setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
+        tableHeader.setReorderingAllowed(false);
+        tableHeader.setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
         table.setFont(new Font(FONT_FAMILY, Font.PLAIN, 15));
         table.setRowHeight(25);
         table.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -185,7 +179,6 @@ public class GiacenzaPane extends AContainer implements ActionListener {
 
         clientPane.add(scrollPane, BorderLayout.CENTER);
     }
-
 
     public class WonHeaderRenderer extends JLabel implements TableCellRenderer {
 
@@ -215,7 +208,6 @@ public class GiacenzaPane extends AContainer implements ActionListener {
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-    }
+    public void actionPerformed(ActionEvent e) {}
 
 }

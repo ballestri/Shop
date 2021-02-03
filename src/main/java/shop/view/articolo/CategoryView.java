@@ -1,10 +1,14 @@
 package shop.view.articolo;
 
+import org.hibernate.query.NativeQuery;
 import shop.controller.article.RendererHighlighted;
 import shop.controller.article.RowFilterUtil;
+import shop.dao.JPAProvider;
 import shop.entity.Categoria;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
+
+import javax.persistence.*;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.*;
@@ -12,6 +16,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
+import static java.util.Objects.requireNonNull;
 import static shop.dao.CategoriaDAO.*;
 import static shop.utils.DesktopRender.FONT_FAMILY;
 import static shop.utils.DesktopRender.JTF_COLOR;
@@ -22,16 +27,16 @@ public class CategoryView extends JFrame implements ActionListener {
     private static final int WIDTH = 480;
     private static final int HEIGHT = 650;
 
-    protected JButton btn_add, btn_salva, btn_remove, btn_update;
+    protected JButton btn_add, btn_salva, btn_remove, btn_update, btn_refresh;
 
     JScrollPane scrollPane;
-    JPanel internPanel, headerPanel, tablePane;
+    JPanel internPanel, headerPanel, tablePane, informationPane;
     RoundedPanel searchPanel;
     public static DefaultTableModel tableModel;
     public static JTable table;
     JTableHeader tableHeader;
     protected JTextField filterField;
-    public static JTextField fieldCategoria;
+    public static JTextField fieldCategoria, jtfAmount;
     private final Font font;
 
     public CategoryView(String attribute) {
@@ -68,6 +73,7 @@ public class CategoryView extends JFrame implements ActionListener {
         headerPanel = new JPanel();
         searchPanel = new RoundedPanel();
         tablePane = new JPanel();
+        informationPane = new JPanel();
 
         initComponents();
 
@@ -83,8 +89,10 @@ public class CategoryView extends JFrame implements ActionListener {
         internPanel.setBackground(new Color(116, 142, 203));
         internPanel.setPreferredSize(new Dimension(WIDTH - 20, HEIGHT - 20));
         headerPanel.setPreferredSize(new Dimension(WIDTH - 20, 60));
-        searchPanel.setPreferredSize(new Dimension(WIDTH - 20, 60));
+        searchPanel.setPreferredSize(new Dimension(WIDTH - 20, 65));
         tablePane.setPreferredSize(new Dimension(WIDTH - 20, HEIGHT - 280));
+        informationPane.setPreferredSize(new Dimension(WIDTH - 20, 60));
+
         headerPanel.setBackground(internPanel.getBackground());
         tablePane.setBackground(internPanel.getBackground());
         internPanel.setLayout(new FlowLayout());
@@ -92,10 +100,13 @@ public class CategoryView extends JFrame implements ActionListener {
         createHeaderArea();
         createSearchArea();
         createTablePane();
+        createInformationPane();
 
         internPanel.add(headerPanel);
         internPanel.add(searchPanel);
         internPanel.add(tablePane);
+        table.getSelectionModel().addListSelectionListener(e -> getCategoriaAmount());
+        internPanel.add(informationPane);
     }
 
     void createHeaderArea() {
@@ -155,7 +166,6 @@ public class CategoryView extends JFrame implements ActionListener {
 
         searchPanel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(2, 10, 2, 10);
 
         JLabel lbl = new JLabel("Ricerca");
         lbl.setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
@@ -197,7 +207,36 @@ public class CategoryView extends JFrame implements ActionListener {
         filterField.setFont(font);
         filterField.setBorder(new LineBorder(Color.BLACK));
 
+        btn_refresh = new JButton(new ImageIcon(requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/refresh.png"))));
+        btn_refresh.setPreferredSize(new Dimension(48, 48));
+        btn_refresh.setContentAreaFilled(false);
+        btn_refresh.setOpaque(false);
+        btn_refresh.addActionListener(this);
+
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1;
+        c.weighty = 1;
+
+        c.gridx = 0;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 10, 2, 10);
+        searchPanel.add(btn_refresh, c);
+
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridx = 1;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_END;
+        c.insets = new Insets(2, 10, 2, 10);
         searchPanel.add(lbl, c);
+
+        c.gridx = 2;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 5, 2, 5);
         searchPanel.add(filterField, c);
     }
 
@@ -256,6 +295,37 @@ public class CategoryView extends JFrame implements ActionListener {
         tablePane.add(wrapper, BorderLayout.CENTER);
     }
 
+    void createInformationPane() {
+        informationPane.setBackground(internPanel.getBackground());
+        JLabel lblFormName = new JLabel("Numero articoli: ");
+        lblFormName.setFont(font);
+        informationPane.add(lblFormName);
+        jtfAmount = new JTextField();
+        jtfAmount.setBackground(internPanel.getBackground());
+        jtfAmount.setFont(font);
+        jtfAmount.setBorder(null);
+        jtfAmount.setText(null);
+        informationPane.add(jtfAmount);
+        informationPane.setVisible(false);
+    }
+
+    void getCategoriaAmount() {
+        jtfAmount.setText(String.valueOf(getCountCategoriaArticolo(getSelectedCategoria().getCategoria())));
+        informationPane.setVisible(true);
+        internPanel.revalidate();
+        internPanel.repaint();
+    }
+
+    Categoria getSelectedCategoria() {
+        Categoria categoria = new Categoria();
+        if (table.getSelectedRow() >= 0) {
+            int index = table.getSelectedRow();
+            categoria.setCategoria(String.valueOf(table.getValueAt(index, 1)));
+            categoria.setDeleted(false);
+
+        }
+        return categoria;
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -273,6 +343,13 @@ public class CategoryView extends JFrame implements ActionListener {
             fieldCategoria.setText(null);
         } else if (e.getSource() == btn_remove) {
             deleteCategoria();
+            informationPane.setVisible(false);
+            internPanel.revalidate();
+            internPanel.repaint();
+        } else if (e.getSource() == btn_refresh) {
+            table.getSelectionModel().clearSelection();
+            filterField.setText(null);
+            informationPane.setVisible(false);
         }
 
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(getAllCategories().toArray(new String[0]));

@@ -9,14 +9,10 @@ import shop.view.rilevazione.CaricoPaneUPD;
 import shop.view.rilevazione.InfoCaricoPane;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.border.*;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,18 +21,17 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static javax.swing.JOptionPane.showMessageDialog;
-import static shop.utils.DesktopRender.FONT_FAMILY;
 import static shop.dao.CaricoDAO.*;
+import static shop.utils.DesktopRender.*;
 
 public class CaricoPane extends AContainer implements ActionListener {
 
-    private static final String DATE_FORMAT = "dd/MM/yyyy";
     public JButton btn_prima;
 
     // pannello interno
     private JPanel internPane, wrapperPane, clientPane;
     private RoundedPanel searchPane;
-    private static final Color JTF_COLOR = new Color(46, 134, 193);
+    //private static final Color JTF_COLOR = new Color(46, 134, 193);
 
     public static DefaultTableModel tableModel;
     JTableHeader tableHeader;
@@ -208,7 +203,7 @@ public class CaricoPane extends AContainer implements ActionListener {
             }
         };
 
-        loadCarico().forEach(carico -> tableModel.addRow(new String[]{String.valueOf(carico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatacarico()), carico.getCodice(), carico.getDescrizione(), String.valueOf(carico.getQuantita()), String.valueOf(carico.getImporto()).concat(" €"), carico.getFornitore(), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatascadenza()), carico.getNote()}));
+        loadCarico().forEach(carico -> tableModel.addRow(new String[]{String.valueOf(carico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatacarico()), carico.getCodice(), carico.getDescrizione(), String.valueOf(carico.getQuantita()), formatMoney(carico.getImporto()), carico.getFornitore(), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatascadenza()), carico.getNote()}));
 
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -233,6 +228,7 @@ public class CaricoPane extends AContainer implements ActionListener {
 
         DefaultTableCellRenderer renderer = (DefaultTableCellRenderer) table.getDefaultRenderer(Object.class);
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        table.setDefaultRenderer(Object.class,renderer);
         table.setFillsViewportHeight(true);
         table.getTableHeader().setReorderingAllowed(false);
         table.getTableHeader().setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
@@ -247,12 +243,9 @@ public class CaricoPane extends AContainer implements ActionListener {
 
         table.getColumnModel().getColumn(0).setMinWidth(0);
         table.getColumnModel().getColumn(0).setMaxWidth(0);
-
         table.getColumnModel().getColumn(1).setMinWidth(150);
-
         table.getColumnModel().getColumn(2).setMinWidth(150);
         table.getColumnModel().getColumn(2).setMaxWidth(150);
-
         table.getColumnModel().getColumn(3).setMinWidth(260);
         table.getColumnModel().getColumn(4).setMinWidth(80);
         table.getColumnModel().getColumn(5).setMinWidth(220);

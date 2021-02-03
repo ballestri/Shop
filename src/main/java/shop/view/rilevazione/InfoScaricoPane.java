@@ -26,7 +26,6 @@ public class InfoScaricoPane extends JFrame implements ActionListener {
     private static final int WIDTH = 640;
     private static final int HEIGHT = 720;
     Font font;
-    private static final String DATE_FORMAT = "dd/MM/yyyy";
 
     JPanel wrapperPane, actionPane;
     RoundedPanel infoPane, internPane;
