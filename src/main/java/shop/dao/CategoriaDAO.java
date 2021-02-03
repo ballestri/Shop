@@ -2,6 +2,7 @@ package shop.dao;
 
 import org.hibernate.query.NativeQuery;
 import shop.entity.Categoria;
+
 import javax.persistence.*;
 import javax.swing.*;
 import java.math.BigInteger;
@@ -26,7 +27,7 @@ public class CategoriaDAO {
         return rowCnt.intValue();
     }
 
-    public static Integer restoreCategoria(String categoria){
+    public static Integer restoreCategoria(String categoria) {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
         Query query = em.createNativeQuery("SELECT count(*) FROM CATEGORIA WHERE isDeleted=true and categoria=:categoria")
@@ -45,7 +46,7 @@ public class CategoriaDAO {
             showMessageDialog(null, "Categoria già presente", "Info Dialog", JOptionPane.ERROR_MESSAGE);
         } else if (categoria.getCategoria().isEmpty()) {
             showMessageDialog(null, "Categoria vuota", "Info Dialog", JOptionPane.ERROR_MESSAGE);
-        } else if(restoreCategoria(categoria.getCategoria()) > 0) {
+        } else if (restoreCategoria(categoria.getCategoria()) > 0) {
             EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
             Categoria ca = em.find(Categoria.class, categoria.getCategoria());
@@ -62,7 +63,7 @@ public class CategoriaDAO {
             }
             table.repaint();
             table.revalidate();
-        }else {
+        } else {
             EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
             em.persist(categoria);

@@ -19,9 +19,8 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 import static javax.swing.JOptionPane.showMessageDialog;
-import static shop.utils.DesktopRender.DATE_FORMAT;
-import static shop.utils.DesktopRender.FONT_FAMILY;
 import static shop.dao.ScaricoDAO.*;
+import static shop.utils.DesktopRender.*;
 
 public class ScaricoPane extends AContainer implements ActionListener {
 
@@ -30,7 +29,7 @@ public class ScaricoPane extends AContainer implements ActionListener {
     // pannello interno
     private JPanel internPane, wrapperPane, clientPane;
     private RoundedPanel searchPane;
-    private static final Color JTF_COLOR = new Color(46, 134, 193);
+    //private static final Color JTF_COLOR = new Color(46, 134, 193);
 
     public static DefaultTableModel tableModel;
     JTableHeader tableHeader;
@@ -200,7 +199,6 @@ public class ScaricoPane extends AContainer implements ActionListener {
 
         loadScarico().forEach(scarico -> tableModel.addRow(new String[]{String.valueOf(scarico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(scarico.getDatascarico()), scarico.getCodice(), scarico.getDescrizione(), String.valueOf(scarico.getQuantita()), String.valueOf(scarico.getImporto()).concat(" €"), scarico.getFornitore(), scarico.getNote()}));
 
-
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component returnComp = super.prepareRenderer(renderer, row, column);
@@ -283,7 +281,6 @@ public class ScaricoPane extends AContainer implements ActionListener {
         if (table.getSelectedRow() >= 0) {
             int index = table.getSelectedRow();
             scarico.setUID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
-
             try {
                 scarico.setDatascarico((new SimpleDateFormat(DATE_FORMAT)).parse(table.getValueAt(index, 1).toString()));
             } catch (ParseException e) {
@@ -327,7 +324,6 @@ public class ScaricoPane extends AContainer implements ActionListener {
         table.setRowSorter(sorter);
         sorter.setRowFilter(null);
     }
-
 
     public static List<Date> getDatesBetween(Date startDate, Date endDate) {
 

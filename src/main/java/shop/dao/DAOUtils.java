@@ -38,6 +38,7 @@ public class DAOUtils {
     }
 
     public static Articolo getProduct(String codice) {
+
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
         TypedQuery<Articolo> query = em.createQuery(

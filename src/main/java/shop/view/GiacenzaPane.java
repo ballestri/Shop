@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
 import static java.util.Objects.requireNonNull;
 import static shop.utils.DesktopRender.FONT_FAMILY;
 import static shop.dao.GiacenzaDAO.getAllGiacenza;
+import static shop.utils.DesktopRender.JTF_COLOR;
 
 public class GiacenzaPane extends AContainer implements ActionListener {
 
@@ -134,11 +135,11 @@ public class GiacenzaPane extends AContainer implements ActionListener {
                     returnComp.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
                 }
 
-                if (column>=1 && column<=6) {
+                if (column >= 2 && column <= 6) {
                     ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
-                    returnComp.setBackground((row % 2 == 0 ? DesktopRender.JTF_COLOR : Color.WHITE));
-                } else if (column == 0) {
+                    returnComp.setBackground((row % 2 == 0 ? JTF_COLOR: Color.WHITE));
                     returnComp.setFont(font);
+                } else if (column == 0 || column == 1) {
                     ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
                 } else
                     ((JLabel) returnComp).setHorizontalAlignment(JLabel.LEFT);

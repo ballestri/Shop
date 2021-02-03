@@ -2,12 +2,12 @@ package shop.dao;
 
 import org.hibernate.query.NativeQuery;
 import shop.entity.Posizione;
-
 import javax.persistence.*;
 import javax.swing.*;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.stream.*;
+
 import static javax.swing.JOptionPane.showMessageDialog;
 import static shop.view.articolo.PositionView.*;
 
@@ -26,12 +26,42 @@ public class PositionDAO {
         return rowCnt.intValue();
     }
 
+    public static Integer restorePosition(String position) {
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        Query query = em.createNativeQuery("SELECT count(*) FROM POSIZIONE WHERE isDeleted=true and posizione=:posizione")
+                .setParameter("posizione", position)
+                .unwrap(NativeQuery.class);
+        BigInteger rowCnt = (BigInteger) query.getSingleResult();
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return rowCnt.intValue();
+    }
+
     public static void insertPosizione() {
         Posizione posizione = new Posizione(fieldPosition.getText(), false);
         if (checkPosition(posizione.getPosizione()) > 0) {
             showMessageDialog(null, "Posizione già presente", "Info Dialog", JOptionPane.ERROR_MESSAGE);
         } else if (posizione.getPosizione().isEmpty()) {
             showMessageDialog(null, "Posizione vuota", "Info Dialog", JOptionPane.ERROR_MESSAGE);
+        } else if (restorePosition(posizione.getPosizione()) > 0) {
+            EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+            em.getTransaction().begin();
+            Posizione ca = em.find(Posizione.class, posizione.getPosizione());
+            ca.setDeleted(false);
+            em.persist(ca);
+            em.getTransaction().commit();
+            em.clear();
+            em.close();
+            tableModel.getDataVector().removeAllElements();
+            tableModel.fireTableDataChanged();
+            int i = 0;
+            for (Posizione c : loadPosizione()) {
+                tableModel.addRow(new String[]{String.valueOf(++i), c.getPosizione()});
+            }
+            table.repaint();
+            table.revalidate();
         } else {
             EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
@@ -40,7 +70,7 @@ public class PositionDAO {
             em.clear();
             em.close();
             tableModel.addRow(new String[]{String.valueOf(getPosizioneCount()), String.valueOf(posizione.getPosizione())});
-            showMessageDialog(null, "Posizione inserita", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
+            showMessageDialog(null, "Categoria inserita", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

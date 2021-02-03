@@ -1,10 +1,13 @@
 package shop.view.articolo;
 
+import org.hibernate.query.NativeQuery;
 import shop.controller.article.RendererHighlighted;
 import shop.controller.article.RowFilterUtil;
+import shop.dao.JPAProvider;
 import shop.entity.Posizione;
 import shop.utils.*;
 
+import javax.persistence.*;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.*;
@@ -12,6 +15,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.Objects;
 
+import static java.util.Objects.*;
 import static shop.dao.PositionDAO.*;
 import static shop.utils.DesktopRender.*;
 import static shop.view.ArticoloPane.*;
@@ -21,15 +25,15 @@ public class PositionView extends JFrame implements ActionListener {
     private static final int WIDTH = 480;
     private static final int HEIGHT = 650;
 
-    protected JButton btn_add, btn_salva, btn_remove, btn_update;
+    protected JButton btn_add, btn_salva, btn_remove, btn_update, btn_refresh;
     JScrollPane scrollPane;
-    JPanel internPanel, headerPanel, tablePane;
+    JPanel internPanel, headerPanel, tablePane, informationPane;
     RoundedPanel searchPanel;
     public static DefaultTableModel tableModel;
     public static JTable table;
     JTableHeader tableHeader;
     protected JTextField filterField;
-    public static JTextField fieldPosition;
+    public static JTextField fieldPosition, jtfAmount;
     private final Font font;
 
     public PositionView(String attribute) {
@@ -63,6 +67,7 @@ public class PositionView extends JFrame implements ActionListener {
         headerPanel = new JPanel();
         searchPanel = new RoundedPanel();
         tablePane = new JPanel();
+        informationPane= new JPanel();
 
         initComponents();
         toolbar.setFloatable(false);
@@ -77,8 +82,10 @@ public class PositionView extends JFrame implements ActionListener {
         internPanel.setBackground(new Color(116, 142, 203));
         internPanel.setPreferredSize(new Dimension(WIDTH - 20, HEIGHT - 20));
         headerPanel.setPreferredSize(new Dimension(WIDTH - 20, 60));
-        searchPanel.setPreferredSize(new Dimension(WIDTH - 20, 60));
+        searchPanel.setPreferredSize(new Dimension(WIDTH - 20, 65));
         tablePane.setPreferredSize(new Dimension(WIDTH - 20, HEIGHT - 280));
+        informationPane.setPreferredSize(new Dimension(WIDTH - 20, 60));
+
         headerPanel.setBackground(internPanel.getBackground());
         tablePane.setBackground(internPanel.getBackground());
         internPanel.setLayout(new FlowLayout());
@@ -86,10 +93,13 @@ public class PositionView extends JFrame implements ActionListener {
         createHeaderArea();
         createSearchArea();
         createTablePane();
+        createInformationPane();
 
         internPanel.add(headerPanel);
         internPanel.add(searchPanel);
         internPanel.add(tablePane);
+        table.getSelectionModel().addListSelectionListener(e -> getPositionAmount());
+        internPanel.add(informationPane);
     }
 
     void createHeaderArea() {
@@ -159,7 +169,6 @@ public class PositionView extends JFrame implements ActionListener {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
-
         };
 
         int i = 0;
@@ -190,11 +199,38 @@ public class PositionView extends JFrame implements ActionListener {
         filterField.setBackground(DesktopRender.JTF_COLOR);
         filterField.setFont(font);
         filterField.setBorder(new LineBorder(Color.BLACK));
+        btn_refresh = new JButton(new ImageIcon(requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/refresh.png"))));
+        btn_refresh.setPreferredSize(new Dimension(48, 48));
+        btn_refresh.setContentAreaFilled(false);
+        btn_refresh.setOpaque(false);
+        btn_refresh.addActionListener(this);
 
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1;
+        c.weighty = 1;
+
+        c.gridx = 0;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 10, 2, 10);
+        searchPanel.add(btn_refresh, c);
+
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridx = 1;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_END;
+        c.insets = new Insets(2, 10, 2, 10);
         searchPanel.add(lbl, c);
+
+        c.gridx = 2;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 5, 2, 5);
         searchPanel.add(filterField, c);
     }
-
 
     void createTablePane() {
         tablePane.setLayout(new BorderLayout());
@@ -250,6 +286,52 @@ public class PositionView extends JFrame implements ActionListener {
         tablePane.add(wrapper, BorderLayout.CENTER);
     }
 
+    void createInformationPane() {
+        informationPane.setBackground(internPanel.getBackground());
+        JLabel lblFormName = new JLabel("Numero articoli: ");
+        lblFormName.setFont(font);
+        informationPane.add(lblFormName);
+        jtfAmount = new JTextField();
+        jtfAmount.setBackground(internPanel.getBackground());
+        jtfAmount.setFont(font);
+        jtfAmount.setBorder(null);
+        jtfAmount.setText(null);
+        informationPane.add(jtfAmount);
+        informationPane.setVisible(false);
+    }
+
+    void getPositionAmount() {
+        jtfAmount.setText(String.valueOf(getCountPositionArticolo(getSelectedPosizione().getPosizione())));
+        informationPane.setVisible(true);
+        internPanel.revalidate();
+        internPanel.repaint();
+    }
+
+
+    public static Integer getCountPositionArticolo(String posizione) {
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        Query query = em.createNativeQuery("SELECT count(*) FROM ARTICOLO a WHERE a.isDeleted= false and a.posizione=:posizione")
+                .setParameter("posizione", posizione)
+                .unwrap(NativeQuery.class);
+        Integer rowCnt = Integer.parseInt(String.valueOf(query.getSingleResult()));
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return rowCnt;
+    }
+
+    Posizione getSelectedPosizione() {
+        Posizione posizione = new Posizione();
+        if (table.getSelectedRow() >= 0) {
+            int index = table.getSelectedRow();
+            posizione.setPosizione(String.valueOf(table.getValueAt(index, 1)));
+            posizione.setDeleted(false);
+
+        }
+        return posizione;
+    }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -267,6 +349,10 @@ public class PositionView extends JFrame implements ActionListener {
             fieldPosition.setText(null);
         } else if (e.getSource() == btn_remove) {
             deletePosizione();
+        } else if (e.getSource() == btn_refresh) {
+            table.getSelectionModel().clearSelection();
+            filterField.setText(null);
+            informationPane.setVisible(false);
         }
 
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(getAllPosizione().toArray(new String[0]));

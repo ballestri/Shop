@@ -36,7 +36,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
     public static JTextField jtfCodice, jtfDescrizione, jtfProvenienza;
 
     public JTextField filterField;
-    public static JFormattedTextField jtfCurrency;
+   public static JFormattedTextField jtfCurrency;
     public static JSpinner jspScorta;
     // Pannello delle funzionalita'
     JPanel internPanel, wrapperPane;
@@ -203,8 +203,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
         lblPrezzo = new JLabel("Prezzo");
         lblPrezzo.setFont(font);
 
-        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(Locale.ITALY);
-        currencyFormat.setMinimumFractionDigits(2);
+        NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("sk", "SK"));
         currencyFormat.setMaximumFractionDigits(2);
         jtfCurrency = new JFormattedTextField(currencyFormat);
         jtfCurrency.setBorder(new EmptyBorder(0, 5, 0, 5));
@@ -213,6 +212,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
         jtfCurrency.setFont(font);
         jtfCurrency.setHorizontalAlignment(SwingConstants.RIGHT);
         jtfCurrency.setPreferredSize(new Dimension(120, 25));
+        jtfCurrency.setName("Prezzo");
         jtfCurrency.setValue(0);
 
         lblScorta = new JLabel("Scorta");
@@ -242,7 +242,6 @@ public class ArticoloPane extends AContainer implements ActionListener {
         internPanel.add(articlePane, BorderLayout.NORTH);
         internPanel.add(actionPaneWrapper);
     }
-
 
     public static void alignArticoloInit() {
         // aggiunto nel pannelli interno
@@ -350,7 +349,6 @@ public class ArticoloPane extends AContainer implements ActionListener {
         gc.insets = new Insets(5, 10, 5, 10);
         articlePane.add(lblPrezzo, gc);
 
-
         // Six column
         gc.anchor = GridBagConstraints.CENTER;
         gc.gridx = 5;
@@ -366,7 +364,6 @@ public class ArticoloPane extends AContainer implements ActionListener {
         gc.anchor = GridBagConstraints.LINE_START;
         gc.insets = new Insets(5, 10, 5, 10);
         articlePane.add(jtfCurrency, gc);
-
     }
 
     public static void alignArticoloPost() {
@@ -585,19 +582,20 @@ public class ArticoloPane extends AContainer implements ActionListener {
         tableHeader = table.getTableHeader();
         tableHeader.setBackground(new Color(39, 55, 70));
         tableHeader.setForeground(Color.WHITE);
+        tableHeader.setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
+        tableHeader.setReorderingAllowed(false);
 
         filterField = RowFilterUtil.createRowFilter(table);
         filterField.setColumns(16);
         RendererHighlighted renderer = new RendererHighlighted(filterField);
-        table.setDefaultRenderer(Object.class, renderer);
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        table.setDefaultRenderer(Object.class, renderer);
+        table.setAutoCreateRowSorter(false);
         table.setFillsViewportHeight(true);
-        table.getTableHeader().setReorderingAllowed(false);
-        table.getTableHeader().setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
         table.setFont(new Font(FONT_FAMILY, Font.PLAIN, 15));
         table.setRowHeight(25);
         table.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         table.setPreferredScrollableViewportSize(new Dimension(1150, 420));
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         DesktopRender.resizeColumnWidth(table);
@@ -612,8 +610,8 @@ public class ArticoloPane extends AContainer implements ActionListener {
         table.getColumnModel().getColumn(6).setMaxWidth(110);
         table.getColumnModel().getColumn(7).setMinWidth(110);
         table.getColumnModel().getColumn(7).setMaxWidth(110);
-        table.getColumnModel().getColumn(9).setMinWidth(150);
-        table.getColumnModel().getColumn(9).setMaxWidth(150);
+        table.getColumnModel().getColumn(9).setMinWidth(155);
+        table.getColumnModel().getColumn(9).setMaxWidth(155);
 
         scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -623,7 +621,6 @@ public class ArticoloPane extends AContainer implements ActionListener {
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         internPanel.add(scrollPane);
     }
-
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -644,7 +641,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
     }
 
     public void getSelectedArticle() {
-        if (table.getSelectedRow() >=0) {
+        if (table.getSelectedRow() >= 0) {
             articlePane.removeAll();
             alignArticoloPost();
             articlePane.revalidate();
@@ -656,15 +653,16 @@ public class ArticoloPane extends AContainer implements ActionListener {
             jtfCodice.setEditable(false);
             jtfDescrizione.setText(articolo.getDescrizione());
 
-            Categoria categoria= articolo.getCategoria();
-            Unita unita= articolo.getUnita();
-            Posizione posizione= articolo.getPosizione();
+            Categoria categoria = articolo.getCategoria();
+            Unita unita = articolo.getUnita();
+            Posizione posizione = articolo.getPosizione();
 
             jcbCategoria.setSelectedItem(categoria.getCategoria());
             jcbPosizione.setSelectedItem(posizione.getPosizione());
             jcbUnita.setSelectedItem(unita.getUnita());
 
-            jtfCurrency.setText("€ ".concat(String.valueOf(articolo.getPrezzo())).replace(".", ","));
+            //jtfCurrency.setText("€ ".concat(String.valueOf(articolo.getPrezzo())).replace(".", ","));
+            jtfCurrency.setText((String.valueOf(articolo.getPrezzo()).replace(".", ",")).concat(" €"));
             jspScorta.setValue(articolo.getScorta());
             jtfProvenienza.setText(articolo.getProvenienza());
         }
@@ -674,8 +672,8 @@ public class ArticoloPane extends AContainer implements ActionListener {
 
 
     public static Articolo getArticolo() {
-        Articolo articolo = new Articolo();
 
+        Articolo articolo = new Articolo();
         if (table.getSelectedRow() >= 0) {
             int index = table.getSelectedRow();
             articolo.setUID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
@@ -686,7 +684,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
             articolo.setPosizione(new Posizione(String.valueOf(table.getValueAt(index, 4)), false));
             articolo.setUnita(new Unita(String.valueOf(table.getValueAt(index, 5)), false));
 
-            articolo.setPrezzo(Double.valueOf(table.getValueAt(index, 6).toString().replace("€", "").replace(",", ".")));
+            articolo.setPrezzo(Double.valueOf(table.getValueAt(index, 6).toString().trim().replace("€", "").replace(",", ".")));
             articolo.setScorta(Integer.valueOf(table.getValueAt(index, 7).toString()));
             articolo.setProvenienza(String.valueOf(table.getValueAt(index, 8)));
             try {

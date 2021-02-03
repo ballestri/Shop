@@ -27,6 +27,7 @@ import static java.util.Objects.requireNonNull;
 import static javax.swing.JOptionPane.showMessageDialog;
 import static shop.utils.DesktopRender.FONT_FAMILY;
 import static shop.dao.CaricoDAO.*;
+import static shop.utils.DesktopRender.JTF_COLOR;
 
 public class CaricoPane extends AContainer implements ActionListener {
 
@@ -36,7 +37,7 @@ public class CaricoPane extends AContainer implements ActionListener {
     // pannello interno
     private JPanel internPane, wrapperPane, clientPane;
     private RoundedPanel searchPane;
-    private static final Color JTF_COLOR = new Color(46, 134, 193);
+    //private static final Color JTF_COLOR = new Color(46, 134, 193);
 
     public static DefaultTableModel tableModel;
     JTableHeader tableHeader;
@@ -233,6 +234,7 @@ public class CaricoPane extends AContainer implements ActionListener {
 
         DefaultTableCellRenderer renderer = (DefaultTableCellRenderer) table.getDefaultRenderer(Object.class);
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        table.setDefaultRenderer(Object.class,renderer);
         table.setFillsViewportHeight(true);
         table.getTableHeader().setReorderingAllowed(false);
         table.getTableHeader().setFont(new Font(FONT_FAMILY, Font.BOLD, 16));

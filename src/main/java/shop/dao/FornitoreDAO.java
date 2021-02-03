@@ -5,6 +5,7 @@ import shop.entity.Fornitore;
 
 import javax.persistence.*;
 import javax.swing.*;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -39,6 +40,21 @@ public class FornitoreDAO {
         showMessageDialog(null, "Cancellazione effettuata", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
     }
 
+
+    public static Integer restoreFornitore(String piva) {
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        Query query = em.createNativeQuery("SELECT count(*) FROM FORNITORE WHERE isDeleted=true and piva=:piva")
+                .setParameter("piva", piva)
+                .unwrap(NativeQuery.class);
+        BigInteger rowCnt = (BigInteger) query.getSingleResult();
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return rowCnt.intValue();
+    }
+
+
     public static void insertFornitore() {
 
         Fornitore fornitore = new Fornitore();
@@ -53,21 +69,46 @@ public class FornitoreDAO {
         fornitore.setWebsite(jtfSito.getText());
         fornitore.setNote(jtaNote.getText());
 
-        if (fornitore.getPiva().isEmpty()) {
-            showMessageDialog(null, "Partita IVA fornitore vuoto", "Info Dialog", JOptionPane.ERROR_MESSAGE);
-        } else {
-            if (checkPiva(fornitore.getPiva()) >= 1) {
-                showMessageDialog(null, "Fornitore già presente", "Info Dialog", JOptionPane.ERROR_MESSAGE);
-            } else {
-                EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
-                em.getTransaction().begin();
-                em.persist(fornitore);
-                em.getTransaction().commit();
-                em.clear();
-                em.close();
-                tableModel.addRow(new String[]{String.valueOf(getFornitoreCount()), fornitore.getNome(), fornitore.getCognome(), fornitore.getIndirizzo(), fornitore.getComune(), fornitore.getPiva(), fornitore.getMail(), fornitore.getTelefono(), fornitore.getFax(), fornitore.getWebsite(), fornitore.getNote()});
-                showMessageDialog(null, "Fornitore inserito", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
+        if (checkPiva(fornitore.getPiva()) > 0) {
+            showMessageDialog(null, "Fornitore già presente", "Info Dialog", JOptionPane.ERROR_MESSAGE);
+        } else if (fornitore.getPiva().isEmpty()) {
+            showMessageDialog(null, "Partita IVA fornitore vuota", "Info Dialog", JOptionPane.ERROR_MESSAGE);
+        } else if (restoreFornitore(fornitore.getPiva()) > 0) {
+            EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+            em.getTransaction().begin();
+            Fornitore fe = em.find(Fornitore.class, fornitore.getPiva());
+            fe.setDeleted(false);
+            fe.setNome(fornitore.getNome());
+            fe.setCognome(fornitore.getCognome());
+            fe.setIndirizzo(fornitore.getIndirizzo());
+            fe.setComune(fornitore.getComune());
+            fe.setMail(fornitore.getMail());
+            fe.setTelefono(fornitore.getTelefono());
+            fe.setFax(fornitore.getFax());
+            fe.setWebsite(fornitore.getWebsite());
+            fe.setNote(fornitore.getNote());
+            fe.setPiva(fornitore.getPiva());
+            em.persist(fe);
+            em.getTransaction().commit();
+            em.clear();
+            em.close();
+            tableModel.getDataVector().removeAllElements();
+            tableModel.fireTableDataChanged();
+            int i = 0;
+            for (Fornitore fr : loadFornitore()) {
+                tableModel.addRow(new String[]{String.valueOf(++i), fr.getNome(), fr.getCognome(), fr.getIndirizzo(), fr.getComune(), fr.getPiva(), fr.getMail(), fr.getTelefono(), fr.getFax(), fr.getWebsite(), fr.getNote()});
             }
+            table.repaint();
+            table.revalidate();
+        } else {
+            EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+            em.getTransaction().begin();
+            em.persist(fornitore);
+            em.getTransaction().commit();
+            em.clear();
+            em.close();
+            tableModel.addRow(new String[]{String.valueOf(getFornitoreCount()), fornitore.getNome(), fornitore.getCognome(), fornitore.getIndirizzo(), fornitore.getComune(), fornitore.getPiva(), fornitore.getMail(), fornitore.getTelefono(), fornitore.getFax(), fornitore.getWebsite(), fornitore.getNote()});
+            showMessageDialog(null, "Fornitore inserito", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
         }
         initFornitorePane();
     }
@@ -78,11 +119,11 @@ public class FornitoreDAO {
         Query query = em.createNativeQuery("SELECT count(*) FROM Fornitore WHERE isDeleted=false and piva=:piva")
                 .setParameter("piva", piva)
                 .unwrap(NativeQuery.class);
-        Integer rowCnt = (Integer) query.getSingleResult();
+        BigInteger rowCnt = (BigInteger) query.getSingleResult();
         em.getTransaction().commit();
         em.clear();
         em.close();
-        return rowCnt;
+        return rowCnt.intValue();
     }
 
     public static Integer getFornitoreCount() {
@@ -90,7 +131,7 @@ public class FornitoreDAO {
         em.getTransaction().begin();
         Query query = em.createNativeQuery("SELECT count(*) FROM Fornitore WHERE isDeleted=false")
                 .unwrap(NativeQuery.class);
-        Integer rowCnt = (Integer)query.getSingleResult();
+        Integer rowCnt = Integer.parseInt(String.valueOf(query.getSingleResult()));
         em.getTransaction().commit();
         em.clear();
         em.close();
