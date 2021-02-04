@@ -2,7 +2,6 @@ package shop.dao;
 
 import org.hibernate.query.NativeQuery;
 import shop.entity.Posizione;
-
 import javax.persistence.*;
 import javax.swing.*;
 import java.math.BigInteger;
