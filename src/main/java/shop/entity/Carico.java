@@ -26,7 +26,7 @@ public class Carico {
     @Column
     private Integer quantita;
 
-    @Column(scale = 2,precision = 9)
+    @Column
     private Double importo;
 
     @Column

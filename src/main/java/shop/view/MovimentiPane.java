@@ -161,7 +161,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
         lblCodice = new JLabel("Codice");
         lblCodice.setFont(font);
 
-        ArrayList<String> items = DAOUtils.getListCodici();
+        ArrayList<String> items = DAOUtils.getAllCodici();
         items.add(0, null);
         jcbCodice = new JComboBox<>(items.toArray(new String[0]));
         ComboBoxFilterDecorator<String> decorate = ComboBoxFilterDecorator.decorate(jcbCodice, MovimentiPane::codiceFilter);
@@ -239,7 +239,6 @@ public class MovimentiPane extends AContainer implements ActionListener {
 
         infoProductPane.setLayout(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
-
 
         // first column
         gc.anchor = GridBagConstraints.EAST;

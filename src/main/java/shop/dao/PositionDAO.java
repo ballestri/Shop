@@ -70,7 +70,7 @@ public class PositionDAO {
             em.clear();
             em.close();
             tableModel.addRow(new String[]{String.valueOf(getPosizioneCount()), String.valueOf(posizione.getPosizione())});
-            showMessageDialog(null, "Categoria inserita", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
+            showMessageDialog(null, "Posizione inserita", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

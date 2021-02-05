@@ -103,12 +103,12 @@ public class CaricoDAO {
     private static Double calcolateImporto(Integer UID) {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
-        TypedQuery<BigDecimal> query = em.createQuery("SELECT round((c.quantita*a.prezzo),2) as importo FROM Articolo a join Carico c on (c.codice = a.codice) WHERE c.UID=?1", BigDecimal.class);
+        TypedQuery<Double> query = em.createQuery("SELECT round((c.quantita*a.prezzo),2) as importo FROM Articolo a join Carico c on (c.codice = a.codice) WHERE c.UID=?1", Double.class);
         query.setParameter(1, UID);
-        BigDecimal importo = query.getSingleResult();
+        Double importo = query.getSingleResult();
         em.getTransaction().commit();
         em.clear();
         em.close();
-        return importo.doubleValue();
+        return importo;
     }
 }

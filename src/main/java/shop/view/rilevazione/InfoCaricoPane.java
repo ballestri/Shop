@@ -102,7 +102,7 @@ public class InfoCaricoPane extends JFrame implements ActionListener {
         lblCodice = new JLabel("Codice prodotto");
         lblCodice.setFont(font);
 
-        ArrayList<String> items = DAOUtils.getListCodici();
+        ArrayList<String> items = DAOUtils.getAllActiveCodici();
         items.add(0, null);
         jcbCodice = new JComboBox<>(items.toArray(new String[0]));
         ComboBoxFilterDecorator<String> decorate = ComboBoxFilterDecorator.decorate(jcbCodice, InfoCaricoPane::codiceFilter);
@@ -152,7 +152,7 @@ public class InfoCaricoPane extends JFrame implements ActionListener {
         lblFornitore = new JLabel("Fornitore");
         lblFornitore.setFont(font);
 
-        ArrayList<String> elements = DAOUtils.getListFornitore();
+        ArrayList<String> elements = DAOUtils.getActiveFornitori();
         items.add(0, null);
         jcbFornitore = new JComboBox<>(elements.toArray(new String[0]));
         ComboBoxFilterDecorator<String> decorator = ComboBoxFilterDecorator.decorate(jcbFornitore, InfoCaricoPane::fornitoreFilter);

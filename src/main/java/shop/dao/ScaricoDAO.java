@@ -5,7 +5,6 @@ import shop.utils.DesktopRender;
 
 import javax.persistence.*;
 import javax.swing.*;
-import java.math.BigDecimal;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -99,13 +98,13 @@ public class ScaricoDAO {
     private static Double calcolateImporto(Integer UID) {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
-        TypedQuery<BigDecimal> query = em.createQuery("SELECT round((s.quantita*a.prezzo),2) as importo FROM Articolo a join Scarico s on (s.codice = a.codice) and s.UID=?1", BigDecimal.class);
+        TypedQuery<Double> query = em.createQuery("SELECT round((s.quantita*a.prezzo),2) as importo FROM Articolo a join Scarico s on (s.codice = a.codice) and s.UID=?1", Double.class);
         query.setParameter(1, UID);
-        BigDecimal importo = query.getSingleResult();
+        Double importo = query.getSingleResult();
         em.getTransaction().commit();
         em.clear();
         em.close();
-        return importo.doubleValue();
+        return importo;
     }
 
 }

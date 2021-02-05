@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LabelHighlighted extends JLabel {
-    private List<Rectangle2D> rectangles = new ArrayList<>();
-    private Color colorHighlight = Color.YELLOW;
+    private final List<Rectangle2D> rectangles = new ArrayList<>();
+    private final Color colorHighlight = new Color(204,204,255 );
 
     public void reset() {
         rectangles.clear();
@@ -21,8 +21,8 @@ public class LabelHighlighted extends JLabel {
         }
         reset();
 
-        final String textToMatch = textToHighlight.toLowerCase().trim();
-        if (textToMatch.length() == 0) {
+        final String textToMatch = textToHighlight.toLowerCase();
+        if (textToMatch.isEmpty()) {
             return;
         }
         textToHighlight = textToHighlight.trim();
@@ -52,6 +52,7 @@ public class LabelHighlighted extends JLabel {
         }
     }
 
+
     @Override
     protected void paintComponent(Graphics g) {
         g.setColor(getBackground());
@@ -70,4 +71,6 @@ public class LabelHighlighted extends JLabel {
         super.paintComponent(g);
 
     }
+
+
 }

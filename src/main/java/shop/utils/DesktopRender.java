@@ -55,6 +55,10 @@ public class DesktopRender {
         return "<html><center>" + first + "<br>" + second + "</center></html>";
     }
 
+    public static String formatOrderText(String first, String second) {
+        return "<html><center style=\"color:#ffffff; font-weight: bold; \">" + first + "<br>" + second + "</center></html>";
+    }
+
     public static String formatButton(String sup, String first, String second) {
         return "<html><sup style=\"color:#FFDEAD; font-size: 9px; font-weight: bold; \">" + sup + "</sup><center>"
                 + first + "<br>" + second + "</center></html>";

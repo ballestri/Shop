@@ -89,7 +89,7 @@ public class AnagraficaPane extends AContainer implements ActionListener {
         if (e.getSource() == btn_articolo)
             container.add(new ArticoloPane().getPanel());
         else if (e.getSource() == btn_cliente)
-            container.add(new ClientePane().getPanel());
+            container.add(new FornitorePane().getPanel());
 
         container.repaint();
     }

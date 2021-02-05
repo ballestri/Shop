@@ -9,7 +9,21 @@ import java.util.List;
 
 public class DAOUtils {
 
-    public static ArrayList<String> getListCodici() {
+
+    public static ArrayList<String> getAllActiveCodici() {
+
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        TypedQuery<String> query = em.createQuery("SELECT a.codice FROM Articolo a WHERE a.isDeleted = false", String.class);
+        ArrayList<String> results = new ArrayList<>(query.getResultList());
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return results;
+    }
+
+
+    public static ArrayList<String> getAllCodici() {
 
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
@@ -21,11 +35,23 @@ public class DAOUtils {
         return results;
     }
 
-    public static ArrayList<String> getListFornitore() {
+    public static ArrayList<String> getActiveFornitori() {
 
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
         TypedQuery<String> query = em.createQuery("SELECT f.cognome FROM Fornitore f WHERE f.isDeleted=false", String.class);
+        List<String> results = query.getResultList();
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return new ArrayList<>(results);
+    }
+
+    public static ArrayList<String> getAllFornitori() {
+
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        TypedQuery<String> query = em.createQuery("SELECT f.cognome FROM Fornitore f", String.class);
         List<String> results = query.getResultList();
         em.getTransaction().commit();
         em.clear();

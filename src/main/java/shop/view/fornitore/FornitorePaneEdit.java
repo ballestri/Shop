@@ -14,10 +14,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Objects;
 
-import static shop.view.ClientePane.table;
+import static shop.view.FornitorePane.table;
 import static shop.dao.FornitoreDAO.insertFornitore;
 
-public class FornitorePane extends JFrame implements ActionListener {
+public class FornitorePaneEdit extends JFrame implements ActionListener {
 
     private static final int WIDTH = 640;
     private static final int HEIGHT = 840;
@@ -30,7 +30,7 @@ public class FornitorePane extends JFrame implements ActionListener {
     protected JButton btn_save, btn_clear;
     public static JTextArea jtaNote;
 
-    public FornitorePane() {
+    public FornitorePaneEdit() {
 
         setTitle("Anagrafica Fornitori");
         setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -94,7 +94,7 @@ public class FornitorePane extends JFrame implements ActionListener {
     void buildFornitore() {
         infoPane.setLayout(new GridBagLayout());
         JLabel lblFormName = new JLabel("Anagrafica fornitori");
-        lblFormName.setFont(new Font("HelveticaNeue", Font.BOLD, 18));
+        lblFormName.setFont(new Font(FONT_FAMILY, Font.BOLD, 18));
         infoPane.add(lblFormName);
 
         // pannello interno

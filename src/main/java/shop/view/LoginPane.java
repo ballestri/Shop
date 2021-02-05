@@ -170,7 +170,7 @@ public class LoginPane extends AContainer implements ActionListener {
         if (jtfUsername.getText().equals(credentials.getUsername()) && ((new String(jtfPassword.getPassword())).equals(credentials.getPassword()))) {
             container.removeAll();
             container.revalidate();
-            container.add(new Pannello().getPanel());
+            container.add(new GestionePane().getPanel());
             container.repaint();
         } else {
             JOptionPane.showMessageDialog(container, "Credenziali errati", "Info Dialog",

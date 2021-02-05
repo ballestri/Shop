@@ -18,8 +18,8 @@ import java.util.Objects;
 import static javax.swing.JOptionPane.showMessageDialog;
 import static shop.utils.DesktopRender.JTF_COLOR;
 import static shop.utils.DesktopRender.formatButton;
-import static shop.view.ClientePane.table;
-import static shop.view.ClientePane.tableModel;
+import static shop.view.FornitorePane.table;
+import static shop.view.FornitorePane.tableModel;
 
 public class FornitorePaneUPD extends JFrame implements ActionListener {
 
@@ -468,6 +468,5 @@ public class FornitorePaneUPD extends JFrame implements ActionListener {
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
-    }
+    public void actionPerformed(ActionEvent e) {}
 }

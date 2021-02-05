@@ -172,7 +172,7 @@ public class ScaricoPaneUPD extends JFrame implements ActionListener {
         lblFornitore = new JLabel("Fornitore");
         lblFornitore.setFont(font);
 
-        ArrayList<String> elements = DAOUtils.getListFornitore();
+        ArrayList<String> elements = DAOUtils.getAllFornitori();
         items.add(0, null);
         jcbFornitore = new JComboBox<>(elements.toArray(new String[0]));
         ComboBoxFilterDecorator<String> decorator = ComboBoxFilterDecorator.decorate(jcbFornitore, InfoCaricoPane::fornitoreFilter);

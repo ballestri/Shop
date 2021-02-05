@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static javax.swing.JOptionPane.showMessageDialog;
-import static shop.view.ClientePane.tableModel;
-import static shop.view.ClientePane.table;
-import static shop.view.fornitore.FornitorePane.*;
+import static shop.view.FornitorePane.tableModel;
+import static shop.view.FornitorePane.table;
+import static shop.view.fornitore.FornitorePaneEdit.*;
 
 public class FornitoreDAO {
 

@@ -2,22 +2,29 @@ package shop.view;
 
 import shop.controller.article.RendererHighlighted;
 import shop.controller.article.RowFilterUtil;
+import shop.entity.Fornitore;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
+import shop.view.fornitore.FornitorePaneEdit;
+import shop.view.fornitore.FornitorePaneUPD;
 
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.util.stream.IntStream;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import static java.util.Objects.requireNonNull;
+import static javax.swing.JOptionPane.showMessageDialog;
 import static shop.utils.DesktopRender.FONT_FAMILY;
-import static shop.dao.GiacenzaDAO.getAllGiacenza;
-import static shop.utils.DesktopRender.JTF_COLOR;
+import static shop.dao.FornitoreDAO.*;
 
-public class GiacenzaPane extends AContainer implements ActionListener {
+public class FornitorePane extends AContainer implements ActionListener {
+
+    public JButton btn_prima;
 
     // pannello interno
     private JPanel internPane, wrapperPane, clientPane;
@@ -27,10 +34,11 @@ public class GiacenzaPane extends AContainer implements ActionListener {
     JTableHeader tableHeader;
     public static JTable table;
     JScrollPane scrollPane;
-    protected JButton btn_refresh;
+
+    protected JButton  btn_add, btn_update, btn_remove;
     private Font font;
 
-    public GiacenzaPane() {
+    public FornitorePane() {
         initPanel();
     }
 
@@ -42,13 +50,37 @@ public class GiacenzaPane extends AContainer implements ActionListener {
 
         // I pulsanti della Toolbar
         RoundedPanel toolbar = new RoundedPanel();
-        toolbar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 10));
-        JLabel lblFormName = new JLabel("Giacenze prodotti");
+        toolbar.setLayout(new GridBagLayout());
+        GridBagConstraints gc = new GridBagConstraints();
+        gc.anchor = GridBagConstraints.EAST;
+        gc.weightx = 0.5;
+        gc.weighty = 0.5;
+
+        gc.gridx = 0;
+        gc.gridy = 0;
+
+        gc.anchor = GridBagConstraints.LINE_END;
+        gc.insets = new Insets(8, 150, 10, 10);
+
+        JLabel lblFormName = new JLabel("Fornitore");
         lblFormName.setForeground(Color.WHITE);
-        lblFormName.setFont(new Font(FONT_FAMILY, Font.BOLD, 28));
+        lblFormName.setFont( new Font(FONT_FAMILY, Font.BOLD, 28));
         toolbar.setBackground(new Color(128, 0, 128));
         lblFormName.setPreferredSize(new Dimension(360, 40));
-        toolbar.add(lblFormName, BorderLayout.CENTER);
+        toolbar.add(lblFormName,gc);
+
+        gc.anchor = GridBagConstraints.EAST;
+        gc.gridx = 1;
+        gc.gridy = 0;
+
+        gc.anchor = GridBagConstraints.LINE_END;
+        gc.insets = new Insets(0, 10, 0, 0);
+        btn_prima = new JButton();
+        btn_prima.setIcon(new ImageIcon(this.getClass().getResource("/images/back.png")));
+        toolbar.add(btn_prima,gc);
+        btn_prima.setFocusPainted(false);
+        btn_prima.addActionListener(this);
+        btn_prima.setToolTipText("Prima");
 
         // I pulsanti delle funzionalita'
         internPane = new JPanel();
@@ -84,64 +116,47 @@ public class GiacenzaPane extends AContainer implements ActionListener {
         clientPane.setPreferredSize(new Dimension(1150, 450));
         buildArticleDetails();
         searchPane.setPreferredSize(new Dimension(1150, 80));
-
-
+        searchPane.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(6, 10, 3, 10);
         JLabel lbl = new JLabel("Ricerca");
-        lbl.setFont(new Font(FONT_FAMILY, Font.BOLD, 20));
+        lbl.setFont(new Font(FONT_FAMILY, Font.BOLD, 18));
         filterField.setBackground(DesktopRender.JTF_COLOR);
         filterField.setFont(font);
         filterField.setBorder(new LineBorder(Color.BLACK));
 
-        btn_refresh = new JButton(new ImageIcon(requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/refresh.png"))));
-        btn_refresh.setPreferredSize(new Dimension(48, 48));
-        btn_refresh.setContentAreaFilled(false);
-        btn_refresh.setOpaque(false);
+        btn_add = new JButton(DesktopRender.formatButton("+ New"));
+        btn_update = new JButton(DesktopRender.formatButton("Update"));
+        btn_remove = new JButton(DesktopRender.formatButton("Remove"));
 
-        searchPane.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
+        formatButton(btn_add);
+        formatButton(btn_update);
+        formatButton(btn_remove);
 
-        c.anchor = GridBagConstraints.WEST;
-        c.weightx = 1;
-        c.weighty = 1;
-
-        c.gridx = 0;
-        c.gridy = 0;
-
-        c.anchor = GridBagConstraints.LINE_START;
-        c.insets = new Insets(2, 10, 2, 0);
-        searchPane.add(btn_refresh, c);
-
-
-        c.anchor = GridBagConstraints.CENTER;
-        c.gridx = 1;
-        c.gridy = 0;
-
-        c.anchor = GridBagConstraints.LINE_END;
-        c.insets = new Insets(2, 0, 2, 40);
         searchPane.add(lbl, c);
-
-        c.anchor = GridBagConstraints.CENTER;
-        c.gridx = 2;
-        c.gridy = 0;
-
-        c.anchor = GridBagConstraints.LINE_START;
-        c.insets = new Insets(2, 0, 2, 160);
         searchPane.add(filterField, c);
+        searchPane.add(btn_add, c);
+        searchPane.add(btn_update, c);
+        searchPane.add(btn_remove, c);
+
         wrapperPane.add(searchPane, BorderLayout.NORTH);
         wrapperPane.add(clientPane, BorderLayout.CENTER);
 
-        btn_refresh.addActionListener(e -> refreshTable());
+        btn_remove.addActionListener(e -> deleteFornitore());
     }
 
     void buildArticleDetails() {
-        String[] header = {"Codice", "Descrizione", "Giacenza", "Scorta", "Riordino", "Totale carico", "Totale scarico", "Unita'"};
+        String[] header = {"ID", "Nome", "Cognome|RS", "Indirizzo", "Comune", "PIVA", "Mail", "Telefono", "Fax", "Sito web", "Note"};
         tableModel = new DefaultTableModel(new Object[][]{}, header) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
-        getAllGiacenza().forEach(ga -> tableModel.addRow(new String[]{ga.getCodice(), ga.getDescrizione(), String.valueOf(ga.getGiacenza()), String.valueOf(ga.getScorta()), String.valueOf(ga.getRiordino()), String.valueOf(ga.getTotcarico()), String.valueOf(ga.getTotscarico()), ga.getUnita()}));
+        int i=0;
+        for (Fornitore fornitore : loadFornitore()) {
+            tableModel.addRow(new String[]{String.valueOf(++i), fornitore.getNome(), fornitore.getCognome(), fornitore.getIndirizzo(), fornitore.getComune(), fornitore.getPiva(), fornitore.getMail(), fornitore.getTelefono(), fornitore.getFax(), fornitore.getWebsite(), fornitore.getNote()});
+        }
 
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -152,15 +167,6 @@ public class GiacenzaPane extends AContainer implements ActionListener {
                 if (!returnComp.getBackground().equals(getSelectionBackground())) {
                     returnComp.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
                 }
-
-                if (column >= 2 && column <= 6) {
-                    ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
-                    returnComp.setBackground((row % 2 == 0 ? JTF_COLOR: Color.WHITE));
-                    returnComp.setFont(font);
-                } else if (column == 0 || column == 1) {
-                    ((JLabel) returnComp).setHorizontalAlignment(JLabel.CENTER);
-                } else
-                    ((JLabel) returnComp).setHorizontalAlignment(JLabel.LEFT);
                 return returnComp;
             }
         };
@@ -168,10 +174,6 @@ public class GiacenzaPane extends AContainer implements ActionListener {
         tableHeader = table.getTableHeader();
         tableHeader.setBackground(new Color(39, 55, 70));
         tableHeader.setForeground(Color.WHITE);
-        tableHeader.setReorderingAllowed(false);
-        tableHeader.setFont(font);
-
-        IntStream.rangeClosed(2, 6).mapToObj(columnIndex -> table.getTableHeader().getColumnModel().getColumn(columnIndex)).forEachOrdered(tc -> tc.setHeaderRenderer(new WonHeaderRenderer()));
 
         filterField = RowFilterUtil.createRowFilter(table);
         filterField.setColumns(20);
@@ -179,8 +181,8 @@ public class GiacenzaPane extends AContainer implements ActionListener {
         table.setDefaultRenderer(Object.class, renderer);
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
         table.setFillsViewportHeight(true);
-        tableHeader.setReorderingAllowed(false);
-        tableHeader.setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getTableHeader().setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
         table.setFont(new Font(FONT_FAMILY, Font.PLAIN, 15));
         table.setRowHeight(25);
         table.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -188,13 +190,6 @@ public class GiacenzaPane extends AContainer implements ActionListener {
         table.setPreferredScrollableViewportSize(new Dimension(1150, 420));
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         DesktopRender.resizeColumnWidth(table);
-        table.getColumnModel().getColumn(0).setMinWidth(150);
-        table.getColumnModel().getColumn(1).setMinWidth(250);
-        table.getColumnModel().getColumn(2).setMinWidth(50);
-        table.getColumnModel().getColumn(3).setMinWidth(50);
-        table.getColumnModel().getColumn(4).setMinWidth(50);
-        table.getColumnModel().getColumn(5).setMinWidth(50);
-        table.getColumnModel().getColumn(6).setMinWidth(50);
 
         scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -205,34 +200,54 @@ public class GiacenzaPane extends AContainer implements ActionListener {
         clientPane.add(scrollPane, BorderLayout.CENTER);
     }
 
-    public class WonHeaderRenderer extends JLabel implements TableCellRenderer {
 
-        public WonHeaderRenderer() {
-            setFont(font);
-            setOpaque(true);
-            setForeground(Color.WHITE);
-            setBackground(new Color(88, 24, 69));
-            setHorizontalAlignment(JLabel.CENTER);
-            setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus, int row, int column) {
-            setText(value.toString());
-            return this;
-        }
+    void formatButton(JButton btn) {
+        btn.setFont(font);
+        btn.setForeground(Color.WHITE);
+        btn.setBorder(new LineBorder(Color.BLACK));
+        btn.setBackground(new Color(0, 128, 128));
+        btn.setFocusPainted(false);
+        btn.addActionListener(this);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(180, 40));
     }
 
-    void refreshTable() {
-        tableModel.getDataVector().removeAllElements();
-        tableModel.fireTableDataChanged();
-        getAllGiacenza().forEach(a -> tableModel.addRow(new String[]{a.getCodice(), a.getDescrizione(), String.valueOf(a.getGiacenza()), String.valueOf(a.getScorta()), String.valueOf(a.getRiordino()), String.valueOf(a.getTotcarico()), String.valueOf(a.getTotscarico()), a.getUnita()}));
-        table.revalidate();
-        table.repaint();
+
+    public Fornitore getSelectedFornitore() {
+        Fornitore fornitore = new Fornitore();
+        if (table.getSelectedRow() >= 0) {
+            int index = table.getSelectedRow();
+            fornitore.setNome(String.valueOf(table.getValueAt(index, 1)));
+            fornitore.setCognome(String.valueOf(table.getValueAt(index, 2)));
+            fornitore.setIndirizzo(String.valueOf(table.getValueAt(index, 3)));
+            fornitore.setComune(String.valueOf(table.getValueAt(index, 4)));
+            fornitore.setPiva(String.valueOf(table.getValueAt(index, 5)));
+            fornitore.setMail(String.valueOf(table.getValueAt(index, 6)));
+            fornitore.setTelefono(String.valueOf(table.getValueAt(index, 7)));
+            fornitore.setFax(String.valueOf(table.getValueAt(index, 8)));
+            fornitore.setWebsite(String.valueOf(table.getValueAt(index, 9)));
+            fornitore.setNote(String.valueOf(table.getValueAt(index, 10)));
+        }
+        return fornitore;
     }
+
 
     @Override
-    public void actionPerformed(ActionEvent e) {}
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == btn_prima) {
+            container.removeAll();
+            container.revalidate();
+            container.add(new AnagraficaPane().getPanel());
+            container.repaint();
+        } else if (e.getSource() == btn_add) {
+            table.getSelectionModel().clearSelection();
+            new FornitorePaneEdit();
+        } else if (e.getSource() == btn_update) {
+            if (table.getSelectedRow() == -1) {
+                showMessageDialog(null, "Selezionare il fornitore", "Info Dialog", JOptionPane.ERROR_MESSAGE);
+            } else
+                new FornitorePaneUPD(getSelectedFornitore());
+        }
+    }
 
 }

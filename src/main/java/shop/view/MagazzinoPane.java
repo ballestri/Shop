@@ -8,6 +8,8 @@ import java.util.stream.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
+import static shop.utils.DesktopRender.FONT_FAMILY;
+
 public class MagazzinoPane extends AContainer implements ActionListener {
 
     public static final Color SELECTED_BG = new Color(128, 0, 128);
@@ -84,7 +86,7 @@ public class MagazzinoPane extends AContainer implements ActionListener {
                     break;
             }
 
-        tabbedPane.setFont(new Font("HelveticaNeue", Font.BOLD, 20));
+        tabbedPane.setFont(new Font(FONT_FAMILY, Font.BOLD, 20));
         toolbar.setFloatable(false);
         toolbar.setBorderPainted(true);
 

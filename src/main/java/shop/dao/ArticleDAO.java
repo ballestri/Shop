@@ -190,7 +190,7 @@ public class ArticleDAO {
     }
 
     public static void refreshMovimentTable() {
-        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(DAOUtils.getListCodici().toArray(new String[0]));
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(DAOUtils.getAllCodici().toArray(new String[0]));
         MovimentiPane.jcbCodice.setModel(model);
         MovimentiPane.jcbCodice.validate();
         MovimentiPane.jcbCodice.repaint();

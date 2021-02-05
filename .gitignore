@@ -226,3 +226,8 @@
 /target/classes/shop/view/articolo/UnitView.class
 /.idea/libraries/Maven__org_ehcache_ehcache_3_9_0.xml
 /.idea/libraries/Maven__org_ehcache_ehcache_transactions_3_9_0.xml
+/target/classes/shop/view/FornitorePane.class
+/target/classes/shop/view/FornitorePane$1.class
+/target/classes/shop/view/FornitorePane$2.class
+/target/classes/shop/view/fornitore/FornitorePaneEdit.class
+/target/classes/shop/view/GestionePane.class

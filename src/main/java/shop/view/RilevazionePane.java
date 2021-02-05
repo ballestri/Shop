@@ -8,6 +8,8 @@ import javax.swing.border.*;
 import shop.utils.CreateRoundButton;
 import shop.utils.DesktopRender;
 
+import static shop.utils.DesktopRender.FONT_FAMILY;
+
 public class RilevazionePane extends AContainer implements ActionListener {
 
     // Le funzionalita dell'app
@@ -29,7 +31,7 @@ public class RilevazionePane extends AContainer implements ActionListener {
          panel = new JPanel();
 
         // Font dei pulsanti
-        Font font = new Font("HelveticaNeue", Font.BOLD, 30);
+        Font font = new Font(FONT_FAMILY, Font.BOLD, 30);
 
         panel.setBounds(150, 105, 825, 625);
         Border whiteline = BorderFactory.createLineBorder(Color.WHITE);
