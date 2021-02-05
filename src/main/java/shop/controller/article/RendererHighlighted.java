@@ -6,7 +6,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 
 public class RendererHighlighted extends DefaultTableCellRenderer {
-    private JTextField searchField;
+    private final JTextField searchField;
 
     public RendererHighlighted(JTextField searchField) {
         this.searchField = searchField;

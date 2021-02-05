@@ -84,9 +84,8 @@ public class GiacenzaPane extends AContainer implements ActionListener {
         clientPane.setPreferredSize(new Dimension(1150, 450));
         buildArticleDetails();
         searchPane.setPreferredSize(new Dimension(1150, 80));
-        searchPane.setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(6, 10, 3, 10);
+
+
         JLabel lbl = new JLabel("Ricerca");
         lbl.setFont(new Font(FONT_FAMILY, Font.BOLD, 20));
         filterField.setBackground(DesktopRender.JTF_COLOR);
@@ -98,10 +97,36 @@ public class GiacenzaPane extends AContainer implements ActionListener {
         btn_refresh.setContentAreaFilled(false);
         btn_refresh.setOpaque(false);
 
-        searchPane.add(lbl, c);
-        searchPane.add(filterField, c);
+        searchPane.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1;
+        c.weighty = 1;
+
+        c.gridx = 0;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 10, 2, 0);
         searchPane.add(btn_refresh, c);
 
+
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridx = 1;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_END;
+        c.insets = new Insets(2, 0, 2, 40);
+        searchPane.add(lbl, c);
+
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridx = 2;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 0, 2, 160);
+        searchPane.add(filterField, c);
         wrapperPane.add(searchPane, BorderLayout.NORTH);
         wrapperPane.add(clientPane, BorderLayout.CENTER);
 

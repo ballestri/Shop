@@ -240,7 +240,6 @@ public class MovimentiPane extends AContainer implements ActionListener {
         infoProductPane.setLayout(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
 
-
         // first column
         gc.anchor = GridBagConstraints.EAST;
         gc.weightx = 1;
