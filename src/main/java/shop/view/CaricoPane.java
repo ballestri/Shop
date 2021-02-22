@@ -52,43 +52,6 @@ public class CaricoPane extends AContainer implements ActionListener {
     public void initPanel() {
 
         font = new Font(FONT_FAMILY, Font.BOLD, 16);
-        ToolTipManager.sharedInstance().setInitialDelay(500);
-        ToolTipManager.sharedInstance().setDismissDelay(4000);
-
-        // I pulsanti della Toolbar
-        RoundedPanel toolbar = new RoundedPanel();
-        toolbar.setLayout(new GridBagLayout());
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.anchor = GridBagConstraints.EAST;
-        gc.weightx = 0.5;
-        gc.weighty = 0.5;
-
-        gc.gridx = 0;
-        gc.gridy = 0;
-
-        gc.anchor = GridBagConstraints.LINE_END;
-        gc.insets = new Insets(8, 150, 10, 10);
-
-        JLabel lblFormName = new JLabel("Operazioni di Carico");
-        lblFormName.setForeground(Color.WHITE);
-        lblFormName.setFont(new Font("HelveticaNeue", Font.BOLD, 28));
-        toolbar.setBackground(new Color(128, 0, 128));
-        lblFormName.setPreferredSize(new Dimension(360, 40));
-        toolbar.add(lblFormName, gc);
-
-        gc.anchor = GridBagConstraints.EAST;
-        gc.gridx = 1;
-        gc.gridy = 0;
-
-        gc.anchor = GridBagConstraints.LINE_END;
-        gc.insets = new Insets(0, 10, 0, 0);
-        btn_prima = new JButton();
-        btn_prima.setIcon(new ImageIcon(this.getClass().getResource("/images/back.png")));
-        toolbar.add(btn_prima, gc);
-        btn_prima.setFocusPainted(false);
-        btn_prima.addActionListener(this);
-        btn_prima.setToolTipText("Prima");
-        btn_prima.addActionListener(this);
 
         // I pulsanti delle funzionalita'
         internPane = new JPanel();
@@ -98,11 +61,10 @@ public class CaricoPane extends AContainer implements ActionListener {
         initComponents();
         buildClientArea();
         container.setLayout(new BorderLayout());
-        container.add(toolbar, BorderLayout.NORTH);
     }
 
     public void initComponents() {
-        internPane.setBounds(90, 110, 1200, 675);
+        internPane.setBounds(50, 110, 1200, 675);
         wrapperPane.setPreferredSize(new Dimension(1200, 675));
         internPane.setBackground(container.getBackground());
         internPane.setLayout(new BorderLayout());

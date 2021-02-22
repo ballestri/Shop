@@ -27,16 +27,13 @@ public class ArticoloPane extends AContainer implements ActionListener {
     private static final Color JTF_COLOR = new Color(169, 204, 227);
     public static JComboBox<String> jcbCategoria, jcbUnita, jcbPosizione;
     protected Font font;
-    // la JToolbar
-    protected JToolBar toolbar;
-    protected JButton btn_prima;
-    protected JButton btn_close;
+
     // Informazioni sull'articolo
     public static JLabel lblCodice, lblDescrizione, lblCategoria, lblPosizione, lblUnita, lblPrezzo, lblScorta, lblProvenienza;
     public static JTextField jtfCodice, jtfDescrizione, jtfProvenienza;
 
     public JTextField filterField;
-   public static JFormattedTextField jtfCurrency;
+    public static JFormattedTextField jtfCurrency;
     public static JSpinner jspScorta;
     // Pannello delle funzionalita'
     JPanel internPanel, wrapperPane;
@@ -56,45 +53,6 @@ public class ArticoloPane extends AContainer implements ActionListener {
     public void initPanel() {
 
         font = new Font(FONT_FAMILY, Font.BOLD, 16);
-        ToolTipManager.sharedInstance().setInitialDelay(500);
-        ToolTipManager.sharedInstance().setDismissDelay(4000);
-
-        // I pulsanti della Toolbar
-        RoundedPanel toolbar = new RoundedPanel();
-        toolbar.setLayout(new GridBagLayout());
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.anchor = GridBagConstraints.EAST;
-        gc.weightx = 0.5;
-        gc.weighty = 0.5;
-
-        gc.gridx = 0;
-        gc.gridy = 0;
-
-        gc.anchor = GridBagConstraints.LINE_END;
-        gc.insets = new Insets(8, 150, 10, 10);
-
-        JLabel lblFormName = new JLabel("Prodotto");
-        lblFormName.setForeground(Color.WHITE);
-        lblFormName.setFont(new Font("HelveticaNeue", Font.BOLD, 28));
-        toolbar.setBackground(new Color(128, 0, 128));
-        lblFormName.setPreferredSize(new Dimension(360, 40));
-        toolbar.add(lblFormName, gc);
-
-        gc.anchor = GridBagConstraints.EAST;
-        gc.gridx = 1;
-        gc.gridy = 0;
-
-        gc.anchor = GridBagConstraints.LINE_END;
-        gc.insets = new Insets(0, 10, 0, 0);
-        btn_prima = new JButton();
-        btn_prima.setIcon(new ImageIcon(this.getClass().getResource("/images/back.png")));
-        toolbar.add(btn_prima, gc);
-        btn_prima.setFocusPainted(false);
-        btn_prima.addActionListener(this);
-        btn_prima.setToolTipText("Prima");
-        btn_prima.addActionListener(this);
-
-        btn_close = new JButton();
         // I pulsanti delle funzionalita'
         wrapperPane = new JPanel();
         informationPane = new RoundedPanel();
@@ -110,7 +68,6 @@ public class ArticoloPane extends AContainer implements ActionListener {
         buildArticleDetails();
 
         container.setLayout(new BorderLayout());
-        container.add(toolbar, BorderLayout.NORTH);
     }
 
     public void initComponents() {
@@ -127,7 +84,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
         // pannello delle azioni
         actionPaneWrapper = new RoundedPanel();
         actionPaneWrapper.setPreferredSize(new Dimension(1150, 70));
-        wrapperPane.setBounds(90, 90, 1200, 750);
+        wrapperPane.setBounds(50, 110, 1200, 750);
         wrapperPane.setBackground(container.getBackground());
 
         informationPane.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 15));
@@ -624,14 +581,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
-        if (e.getSource() == btn_prima) {
-            container.removeAll();
-            container.revalidate();
-            container.add(new AnagraficaPane().getPanel());
-            container.repaint();
-            container.doLayout();
-        } else if (e.getSource() == btn_list_categoria) {
+        if (e.getSource() == btn_list_categoria) {
             new CategoryView(formatTitleFieldPane(e.getActionCommand()));
         } else if (e.getSource() == btn_list_unita) {
             new UnitView(formatTitleFieldPane(e.getActionCommand()));

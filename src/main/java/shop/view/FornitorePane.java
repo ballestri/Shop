@@ -24,18 +24,16 @@ import static shop.dao.FornitoreDAO.*;
 
 public class FornitorePane extends AContainer implements ActionListener {
 
-    public JButton btn_prima;
-
     // pannello interno
     private JPanel internPane, wrapperPane, clientPane;
-    private RoundedPanel searchPane;
+    private RoundedPanel searchPane, roundedPanel;
     protected JTextField filterField;
     public static DefaultTableModel tableModel;
     JTableHeader tableHeader;
     public static JTable table;
     JScrollPane scrollPane;
 
-    protected JButton  btn_add, btn_update, btn_remove;
+    protected JButton btn_add, btn_update, btn_remove;
     private Font font;
 
     public FornitorePane() {
@@ -45,42 +43,6 @@ public class FornitorePane extends AContainer implements ActionListener {
     public void initPanel() {
 
         font = new Font(FONT_FAMILY, Font.BOLD, 16);
-        ToolTipManager.sharedInstance().setInitialDelay(500);
-        ToolTipManager.sharedInstance().setDismissDelay(4000);
-
-        // I pulsanti della Toolbar
-        RoundedPanel toolbar = new RoundedPanel();
-        toolbar.setLayout(new GridBagLayout());
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.anchor = GridBagConstraints.EAST;
-        gc.weightx = 0.5;
-        gc.weighty = 0.5;
-
-        gc.gridx = 0;
-        gc.gridy = 0;
-
-        gc.anchor = GridBagConstraints.LINE_END;
-        gc.insets = new Insets(8, 150, 10, 10);
-
-        JLabel lblFormName = new JLabel("Fornitore");
-        lblFormName.setForeground(Color.WHITE);
-        lblFormName.setFont( new Font(FONT_FAMILY, Font.BOLD, 28));
-        toolbar.setBackground(new Color(128, 0, 128));
-        lblFormName.setPreferredSize(new Dimension(360, 40));
-        toolbar.add(lblFormName,gc);
-
-        gc.anchor = GridBagConstraints.EAST;
-        gc.gridx = 1;
-        gc.gridy = 0;
-
-        gc.anchor = GridBagConstraints.LINE_END;
-        gc.insets = new Insets(0, 10, 0, 0);
-        btn_prima = new JButton();
-        btn_prima.setIcon(new ImageIcon(this.getClass().getResource("/images/back.png")));
-        toolbar.add(btn_prima,gc);
-        btn_prima.setFocusPainted(false);
-        btn_prima.addActionListener(this);
-        btn_prima.setToolTipText("Prima");
 
         // I pulsanti delle funzionalita'
         internPane = new JPanel();
@@ -90,15 +52,25 @@ public class FornitorePane extends AContainer implements ActionListener {
         build();
         buildClientArea();
         container.setLayout(new BorderLayout());
-        container.add(toolbar, BorderLayout.NORTH);
     }
 
 
     public void build() {
-        internPane.setBounds(90, 110, 1200, 675);
+
+        roundedPanel = new RoundedPanel();
+        roundedPanel.setLayout(new GridBagLayout());
+        JLabel lblFormName = new JLabel("Fornitore");
+        lblFormName.setForeground(Color.WHITE);
+        lblFormName.setFont(new Font(FONT_FAMILY, Font.BOLD, 28));
+        roundedPanel.setBackground(new Color(128, 0, 128));
+        roundedPanel.setPreferredSize(new Dimension(1200, 60));
+        roundedPanel.add(lblFormName);
+
+        internPane.setBounds(55, 80, 1200, 675);
         wrapperPane.setPreferredSize(new Dimension(1200, 675));
         internPane.setBackground(container.getBackground());
         internPane.setLayout(new BorderLayout());
+        internPane.add(roundedPanel, BorderLayout.NORTH);
         internPane.add(wrapperPane, BorderLayout.CENTER);
         container.add(internPane);
     }
@@ -153,7 +125,7 @@ public class FornitorePane extends AContainer implements ActionListener {
             }
         };
 
-        int i=0;
+        int i = 0;
         for (Fornitore fornitore : loadFornitore()) {
             tableModel.addRow(new String[]{String.valueOf(++i), fornitore.getNome(), fornitore.getCognome(), fornitore.getIndirizzo(), fornitore.getComune(), fornitore.getPiva(), fornitore.getMail(), fornitore.getTelefono(), fornitore.getFax(), fornitore.getWebsite(), fornitore.getNote()});
         }
@@ -234,12 +206,7 @@ public class FornitorePane extends AContainer implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == btn_prima) {
-            container.removeAll();
-            container.revalidate();
-            container.add(new AnagraficaPane().getPanel());
-            container.repaint();
-        } else if (e.getSource() == btn_add) {
+        if (e.getSource() == btn_add) {
             table.getSelectionModel().clearSelection();
             new FornitorePaneEdit();
         } else if (e.getSource() == btn_update) {

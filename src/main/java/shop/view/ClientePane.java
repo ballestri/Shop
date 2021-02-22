@@ -28,7 +28,6 @@ public class ClientePane extends AContainer implements ActionListener {
     JScrollPane scrollPane;
 
     RoundedPanel roundedPanel;
-    protected JButton btn_prima, btn_close;
     protected JToolBar toolbar;
     protected JButton btn_insert,btn_edit,btn_remove, btn_refresh_cliente;
 
@@ -43,26 +42,6 @@ public class ClientePane extends AContainer implements ActionListener {
 
         font = new Font(FONT_FAMILY, Font.BOLD, 16);
 
-        ToolTipManager.sharedInstance().setInitialDelay(500);
-        ToolTipManager.sharedInstance().setDismissDelay(4000);
-
-        toolbar = new JToolBar();
-        btn_prima = new JButton();
-        btn_prima.setIcon(new ImageIcon(this.getClass().getResource("/images/prima.png")));
-        toolbar.add(btn_prima);
-        btn_prima.setFocusPainted(false);
-        btn_prima.addActionListener(this);
-        btn_prima.setToolTipText("Prima");
-        toolbar.addSeparator();
-
-        btn_close = new JButton();
-        btn_close.setIcon(new ImageIcon(this.getClass().getResource("/images/esci.png")));
-        toolbar.add(btn_close);
-        btn_close.setFocusPainted(false);
-        btn_close.setToolTipText("Chiudi");
-        toolbar.addSeparator();
-        btn_close.addActionListener(evt -> System.exit(0));
-
         internPane = new JPanel();
         wrapperPane = new JPanel();
         clientePanel = new JPanel();
@@ -70,10 +49,7 @@ public class ClientePane extends AContainer implements ActionListener {
         orderPane= new JPanel();
 
         initComponents();
-
-        toolbar.setFloatable(false);
         container.setLayout(new BorderLayout());
-        container.add(toolbar, BorderLayout.NORTH);
     }
 
     public void initComponents() {
@@ -87,9 +63,8 @@ public class ClientePane extends AContainer implements ActionListener {
         roundedPanel.setPreferredSize(new Dimension(1200, 60));
         roundedPanel.add(lblFormName);
 
-        internPane.setBounds(150, 140, 1200, 675);
+        internPane.setBounds(55, 80, 1200, 675);
         wrapperPane.setPreferredSize(new Dimension(1200, 675));
-
         internPane.setBackground(container.getBackground());
         internPane.setLayout(new BorderLayout());
 
@@ -419,7 +394,6 @@ public class ClientePane extends AContainer implements ActionListener {
         Border empty = new EmptyBorder(5, 5, 5, 5);
         CompoundBorder border = new CompoundBorder(line, empty);
 
-
         orderCountPane.setBorder(border);
         orderTotalAmount.setBorder(border);
         orderLastDate.setBorder(border);
@@ -455,12 +429,6 @@ public class ClientePane extends AContainer implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        container.removeAll();
-        container.revalidate();
-        if (e.getSource() == btn_prima) {
-            container.add(new Pannello().getPanel());
-        }
-        container.repaint();
     }
 }
 

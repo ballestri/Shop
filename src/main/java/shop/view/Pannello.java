@@ -116,7 +116,7 @@ public class Pannello extends AContainer implements ActionListener {
         container.removeAll();
         container.revalidate();
         if (e.getSource() == btn_magazzino)
-            container.add(new MagazzinoPane().getPanel());
+            container.add(new OLDMagazzinoPane().getPanel());
         else if (e.getSource() == btn_prima)
             container.add(new GestionePane().getPanel());
         else if(e.getSource() == btn_clienti)

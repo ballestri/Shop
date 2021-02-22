@@ -1,27 +1,24 @@
 package shop.view;
-import shop.utils.DesktopRender;
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.*;
 import java.util.stream.*;
+import javax.swing.*;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import static shop.utils.DesktopRender.FONT_FAMILY;
 
-public class GestionePane extends AContainer implements ActionListener {
+public class OLDMagazzinoPane extends AContainer implements ActionListener {
 
-    public static final Color SELECTED_BG = new Color(224, 122, 95);
-    public static final Color UNSELECTED_BG = new Color(162, 210, 255);
-    // Le funzionalita dell'app
-    protected JButton btn_prima,btn_close;
-    protected Font font;
+    public static final Color SELECTED_BG = new Color(128, 0, 128);
+    public static final Color UNSELECTED_BG = new Color(17, 109, 91);
+    protected JButton btn_prima, btn_close;
     protected JToolBar toolbar;
     protected JTabbedPane tabbedPane;
 
-
-    public GestionePane() {
+    public OLDMagazzinoPane() {
         initPanel();
     }
 
@@ -55,54 +52,6 @@ public class GestionePane extends AContainer implements ActionListener {
         UIManager.put("TabbedPane.selectedLabelShift", 0);
         UIManager.put("TabbedPane.labelShift", 0);
 
-
-        tabbedPane = new JTabbedPane() {
-            @Override public void updateUI() {
-                super.updateUI();
-                setUI(new BasicTabbedPaneUI() {
-                    @Override protected void paintFocusIndicator(Graphics g, int tabPlacement, Rectangle[] rects, int tabIndex, Rectangle iconRect, Rectangle textRect, boolean isSelected) {
-                        // Do not paint anything
-                    }
-
-                    @Override protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-                        // Do not paint anything
-                    }
-
-                    @Override  protected void paintTabBackground(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-                        g.setColor(isSelected ? SELECTED_BG : UNSELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-
-                    @Override protected void paintContentBorderTopEdge(Graphics g, int tabPlacement, int selectedIndex, int x, int y, int w, int h) {
-                        g.setColor(SELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-
-                    @Override protected void paintContentBorderRightEdge(Graphics g, int tabPlacement, int selectedIndex, int x, int y, int w, int h) {
-                        g.setColor(SELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-
-                    @Override protected void paintContentBorderBottomEdge(Graphics g, int tabPlacement, int selectedIndex, int x, int y, int w, int h) {
-                        g.setColor(SELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-
-                    @Override protected void paintContentBorderLeftEdge(Graphics g, int tabPlacement, int selectedIndex, int x, int y, int w, int h) {
-                        g.setColor(SELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-                });
-                setOpaque(true);
-                setForeground(Color.WHITE);
-                setBackground(UNSELECTED_BG);
-                setTabPlacement(SwingConstants.LEFT);
-                setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-            }
-        };
-
-
-        /*
         tabbedPane = new JTabbedPane(SwingConstants.TOP) {
             @Override
             public void updateUI() {
@@ -114,8 +63,7 @@ public class GestionePane extends AContainer implements ActionListener {
             }
         };
 
-
-        ArrayList<String> list_actions = new ArrayList<>(Arrays.asList(DesktopRender.formatButton("Gestione", "Magazzino"), "RILEVAZIONI", "GIACENZA", "STORICO", "MOVIMENTAZIONI", "RICHIESTE"));
+        ArrayList<String> list_actions = new ArrayList<>(Arrays.asList("ANAGRAFICA", "RILEVAZIONI", "GIACENZA", "STORICO", "MOVIMENTAZIONI", "RICHIESTE"));
         for (String action : list_actions)
             switch (action) {
                 case "ANAGRAFICA":
@@ -137,20 +85,6 @@ public class GestionePane extends AContainer implements ActionListener {
                     tabbedPane.addTab(action, new JPanel());
                     break;
             }
-
-         */
-        tabbedPane.addTab(DesktopRender.formatButton("Dashboard"), new ImageIcon(getClass().getResource("/images/home.png")), new JPanel());
-        tabbedPane.addTab(DesktopRender.formatButton("Gestione", "Magazzino"), new ImageIcon(getClass().getResource("/images/magazzino.png")), new MagazzinoPane().getPanel());
-        tabbedPane.addTab(DesktopRender.formatButton("Gestione", "Clienti"), new ImageIcon(getClass().getResource("/images/clienti.png")), new ClientePane().getPanel());
-        tabbedPane.addTab(DesktopRender.formatButton("Gestione", "Fornitori"), new ImageIcon(getClass().getResource("/images/fornitori.png")), new FornitorePane().getPanel());
-        tabbedPane.addTab(DesktopRender.formatButton("Vendite"), new ImageIcon(getClass().getResource("/images/vendita.png")), new JPanel());
-        tabbedPane.addTab(DesktopRender.formatButton("Contabilita'"), new ImageIcon(getClass().getResource("/images/contabilita.png")), new JPanel());
-        tabbedPane.addTab(DesktopRender.formatButton("Report"), new ImageIcon(getClass().getResource("/images/report.png")), new JPanel());
-
-
-
-
-        // btn_close.setIcon(new ImageIcon(this.getClass().getResource("/images/esci.png")));
 
         tabbedPane.setFont(new Font(FONT_FAMILY, Font.BOLD, 20));
         toolbar.setFloatable(false);
@@ -186,12 +120,7 @@ public class GestionePane extends AContainer implements ActionListener {
         };
         tabbedPane.addMouseMotionListener(listener);
         tabbedPane.setBackground(container.getBackground());
-        //tabbedPane.setBackground(new Color(33, 158, 188));
-
-
-
     }
-
 
     public static class CustomMainMenuTabs extends BasicTabbedPaneUI {
 
@@ -207,7 +136,7 @@ public class GestionePane extends AContainer implements ActionListener {
             }
             g2.setPaint(color);
             g2.fill(new RoundRectangle2D.Double(x, y, w, h, 30, 30));
-           //g2.fill(new Rectangle2D.Double(x , y, w, h));
+            //g2.fill(new Rectangle2D.Double(x + 100, y, w, h));
         }
 
         protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
@@ -223,25 +152,13 @@ public class GestionePane extends AContainer implements ActionListener {
         return IntStream.range(0, tabbedPane.getTabCount()).filter(i -> tabbedPane.getBoundsAt(i).contains(p.x, p.y)).findFirst().orElse(-1);
     }
 
-
-
     @Override
     public void actionPerformed(ActionEvent e) {
 
         container.removeAll();
         container.revalidate();
         if (e.getSource() == btn_prima)
-            container.add(new LoginPane().getPanel());
-        /*
-        if (e.getSource() == btn_anagrafica)
             container.add(new Pannello().getPanel());
-        else if (e.getSource() == btn_prima)
-            container.add(new LoginPane().getPanel());
-        else if(e.getSource() == btn_contabilita)
-            container.add(new JPanel());
-         */
-        container.doLayout();
         container.repaint();
-
     }
 }

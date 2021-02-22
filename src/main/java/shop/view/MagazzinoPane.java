@@ -1,22 +1,26 @@
 package shop.view;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.geom.RoundRectangle2D;
-import java.util.*;
-import java.util.stream.*;
+
+import shop.utils.DesktopRender;
+
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicTabbedPaneUI;
+import javax.swing.border.LineBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import static shop.utils.DesktopRender.FONT_FAMILY;
 
 public class MagazzinoPane extends AContainer implements ActionListener {
 
-    public static final Color SELECTED_BG = new Color(128, 0, 128);
-    public static final Color UNSELECTED_BG = new Color(17, 109, 91);
-    protected JButton btn_prima, btn_close;
-    protected JToolBar toolbar;
-    protected JTabbedPane tabbedPane;
+
+    public static final Color SELECTED = new Color(224, 122, 95);
+    public static final Color UNSELECTED = new Color(39, 55, 70);
+
+    // pannello interno
+    protected JPanel buttonPane;
+    protected Font font;
+    protected JButton btn_anagrafica, btn_carico, btn_giacenza, btn_movimentazione;
 
     public MagazzinoPane() {
         initPanel();
@@ -24,141 +28,85 @@ public class MagazzinoPane extends AContainer implements ActionListener {
 
     public void initPanel() {
 
-        ToolTipManager.sharedInstance().setInitialDelay(500);
-        ToolTipManager.sharedInstance().setDismissDelay(4000);
+        font = new Font(FONT_FAMILY, Font.BOLD, 20);
 
-        // Toolbar
         // I pulsanti della Toolbar
-        toolbar = new JToolBar();
-        btn_prima = new JButton();
-        btn_prima.setIcon(new ImageIcon(this.getClass().getResource("/images/prima.png")));
-        toolbar.add(btn_prima);
-        btn_prima.setFocusPainted(false);
-        btn_prima.addActionListener(this);
-        btn_prima.setToolTipText("Prima");
-        toolbar.addSeparator();
+        buttonPane = new JPanel();
 
-        btn_close = new JButton();
-        btn_close.setIcon(new ImageIcon(this.getClass().getResource("/images/esci.png")));
-        toolbar.add(btn_close);
-        btn_close.setFocusPainted(false);
-        btn_close.setToolTipText("Chiudi");
-        toolbar.addSeparator();
-        btn_close.addActionListener(evt -> System.exit(0));
-
-        UIManager.put("TabbedPane.tabInsets", new Insets(12, 40, 12, 10));
-        UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
-        UIManager.put("TabbedPane.tabAreaInsets", new Insets(0, 0, 0, 0));
-        UIManager.put("TabbedPane.selectedLabelShift", 0);
-        UIManager.put("TabbedPane.labelShift", 0);
-
-        tabbedPane = new JTabbedPane(SwingConstants.TOP) {
-            @Override
-            public void updateUI() {
-                setOpaque(true);
-                setForeground(Color.WHITE);
-                setBackground(UNSELECTED_BG);
-                setTabPlacement(LEFT);
-                setTabLayoutPolicy(SCROLL_TAB_LAYOUT);
-            }
-        };
-
-        ArrayList<String> list_actions = new ArrayList<>(Arrays.asList("ANAGRAFICA", "RILEVAZIONI", "GIACENZA", "STORICO", "MOVIMENTAZIONI", "RICHIESTE"));
-        for (String action : list_actions)
-            switch (action) {
-                case "ANAGRAFICA":
-                    tabbedPane.addTab(action, new AnagraficaPane().getPanel());
-                    break;
-                case "RILEVAZIONI":
-                    tabbedPane.addTab(action, new RilevazionePane().getPanel());
-                    break;
-                case "GIACENZA":
-                    tabbedPane.addTab(action, new GiacenzaPane().getPanel());
-                    break;
-                case "STORICO":
-                    tabbedPane.addTab(action, new StoricoPane().getPanel());
-                    break;
-                case "MOVIMENTAZIONI":
-                    tabbedPane.addTab(action, new MovimentiPane().getPanel());
-                    break;
-                default:
-                    tabbedPane.addTab(action, new JPanel());
-                    break;
-            }
-
-        tabbedPane.setFont(new Font(FONT_FAMILY, Font.BOLD, 20));
-        toolbar.setFloatable(false);
-        toolbar.setBorderPainted(true);
-
+        buildButtonPane();
         container.setLayout(new BorderLayout());
-        container.add(toolbar, BorderLayout.NORTH);
-        container.add(tabbedPane, BorderLayout.CENTER);
-
-        tabbedPane.addMouseWheelListener(e -> {
-            JTabbedPane pane = (JTabbedPane) e.getSource();
-            int units = e.getWheelRotation();
-            int oldIndex = pane.getSelectedIndex();
-            int newIndex = oldIndex + units;
-            if (newIndex < 0)
-                pane.setSelectedIndex(0);
-            else if (newIndex >= pane.getTabCount())
-                pane.setSelectedIndex(pane.getTabCount() - 1);
-            else
-                pane.setSelectedIndex(newIndex);
-        });
-
-        tabbedPane.setUI(new CustomMainMenuTabs());
-        MouseMotionListener listener = new MouseMotionAdapter() {
-            public void mouseMoved(MouseEvent e) {
-                JTabbedPane tabbedPane = (JTabbedPane) e.getSource();
-                if (findTabPaneIndex(e.getPoint(), tabbedPane) > -1) {
-                    tabbedPane.setCursor(new Cursor((Cursor.HAND_CURSOR)));
-                } else {
-                    tabbedPane.setCursor(new Cursor((Cursor.DEFAULT_CURSOR)));
-                }
-            }
-        };
-        tabbedPane.addMouseMotionListener(listener);
-        tabbedPane.setBackground(container.getBackground());
+        container.add(buttonPane, BorderLayout.NORTH);
     }
 
-    public static class CustomMainMenuTabs extends BasicTabbedPaneUI {
+    void buildButtonPane() {
 
-        protected void paintTabBackground(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-            Graphics2D g2 = (Graphics2D) g;
-            Color color;
-            if (isSelected) {
-                color = SELECTED_BG;
-            } else if (getRolloverTab() == tabIndex) {
-                color = UNSELECTED_BG;
-            } else {
-                color = UNSELECTED_BG;
-            }
-            g2.setPaint(color);
-            g2.fill(new RoundRectangle2D.Double(x, y, w, h, 30, 30));
-            //g2.fill(new Rectangle2D.Double(x + 100, y, w, h));
-        }
+        buttonPane.setBackground(container.getBackground());
+        buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 15));
 
-        protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-            g.setColor(new Color(116, 142, 203));
-            g.drawRect(x, y, w, h);
-        }
+        btn_anagrafica = new JButton(DesktopRender.formatButton("Anagrafica"));
+        btn_carico = new JButton(DesktopRender.formatButton("Carico"));
+        btn_giacenza = new JButton(DesktopRender.formatButton("Giacenza"));
+        btn_movimentazione = new JButton(DesktopRender.formatButton("Movimentazione"));
 
-        protected void paintFocusIndicator(Graphics g, int tabPlacement, Rectangle[] rects, int tabIndex, Rectangle iconRect, Rectangle textRect, boolean isSelected) {
-        }
+        formatButton(btn_anagrafica);
+        formatButton(btn_carico);
+        formatButton(btn_giacenza);
+        formatButton(btn_movimentazione);
+
+        buttonPane.add(btn_anagrafica);
+        buttonPane.add(btn_carico);
+        buttonPane.add(btn_giacenza);
+        buttonPane.add(btn_movimentazione);
+
+        btn_anagrafica.addActionListener(this);
+        btn_carico.addActionListener(this);
+        btn_giacenza.addActionListener(this);
+        btn_movimentazione.addActionListener(this);
     }
 
-    private static int findTabPaneIndex(Point p, JTabbedPane tabbedPane) {
-        return IntStream.range(0, tabbedPane.getTabCount()).filter(i -> tabbedPane.getBoundsAt(i).contains(p.x, p.y)).findFirst().orElse(-1);
+
+    void formatButton(JButton btn) {
+        btn.setFont(font);
+        btn.setForeground(Color.WHITE);
+        btn.setBorder(new LineBorder(Color.BLACK));
+        btn.setBackground(UNSELECTED);
+        btn.setFocusPainted(false);
+        btn.addActionListener(this);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setPreferredSize(new Dimension(220, 60));
+    }
+
+
+    void unselectedButton() {
+        btn_anagrafica.setBackground(UNSELECTED);
+        btn_carico.setBackground(UNSELECTED);
+        btn_giacenza.setBackground(UNSELECTED);
+        btn_movimentazione.setBackground(UNSELECTED);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         container.removeAll();
+        container.add(buttonPane);
+        unselectedButton();
         container.revalidate();
-        if (e.getSource() == btn_prima)
-            container.add(new Pannello().getPanel());
+
+        if (e.getSource() == btn_anagrafica) {
+            container.add(new ArticoloPane().getPanel());
+            btn_anagrafica.setBackground(SELECTED);
+        } else if (e.getSource() == btn_carico) {
+            container.add(new CaricoPane().getPanel());
+            btn_carico.setBackground(SELECTED);
+        } else if (e.getSource() == btn_giacenza) {
+            container.add(new GiacenzaPane().getPanel());
+            btn_giacenza.setBackground(SELECTED);
+        } else if (e.getSource() == btn_movimentazione) {
+            container.add(new MovimentiPane().getPanel());
+            btn_movimentazione.setBackground(SELECTED);
+        }
+        container.revalidate();
         container.repaint();
     }
+
 }
