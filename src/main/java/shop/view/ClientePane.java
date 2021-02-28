@@ -29,7 +29,7 @@ public class ClientePane extends AContainer implements ActionListener {
 
     RoundedPanel roundedPanel;
     protected JToolBar toolbar;
-    protected JButton btn_insert,btn_edit,btn_remove, btn_refresh_cliente;
+    protected JButton btn_insert,btn_update,btn_remove, btn_refresh_cliente;
 
     // Pulsante di carica articolo
     private Font font;
@@ -299,18 +299,22 @@ public class ClientePane extends AContainer implements ActionListener {
     void buildButtonPane(){
 
         btn_insert = new JButton(DesktopRender.formatButton("Insert"));
-        btn_edit = new JButton(DesktopRender.formatButton("Edit"));
+        btn_update = new JButton(DesktopRender.formatButton("Update"));
         btn_remove = new JButton(DesktopRender.formatButton("Remove"));
 
         buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 15));
 
         formatButton(btn_insert);
-        formatButton(btn_edit);
+        formatButton(btn_update);
         formatButton(btn_remove);
 
         buttonPane.add(btn_insert);
-        buttonPane.add(btn_edit);
+        buttonPane.add(btn_update);
         buttonPane.add(btn_remove);
+
+        btn_insert.addActionListener(this);
+        btn_update.addActionListener(this);
+        btn_remove.addActionListener(this);
     }
 
 
@@ -326,7 +330,7 @@ public class ClientePane extends AContainer implements ActionListener {
     }
 
     void buildTableWrapper() {
-        String[] header = {"Codice", "Cognome", "Nome", "Telefono", "Email"};
+        String[] header = {"Cliente ID", "Cognome", "Nome", "Telefono", "Email"};
 
         tableModel = new DefaultTableModel(new Object[][]{}, header) {
             public boolean isCellEditable(int row, int column) {

@@ -73,6 +73,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
     public void initComponents() {
 
         internPanel.setPreferredSize(new Dimension(1200, 675));
+        
         Border line = BorderFactory.createLineBorder(Color.WHITE);
         Border empty = new EmptyBorder(5, 10, 5, 10);
         CompoundBorder border = new CompoundBorder(line, empty);
@@ -573,7 +574,6 @@ public class ArticoloPane extends AContainer implements ActionListener {
         scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setPreferredSize(new Dimension(1150, 420));
-        scrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         scrollPane.getViewport().setBackground(table.getBackground());
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         internPanel.add(scrollPane);

@@ -43,6 +43,10 @@ public class DesktopRender {
         return StringUtils.leftPad(padLeftZeros(String.valueOf(UID)), CODE_LENGTH, "00");
     }
 
+    public static String formatClientCode(Integer UID) {
+        return StringUtils.leftPad(padLeftZeros(String.valueOf(UID)), CODE_LENGTH, "00");
+    }
+
     public static String formatMoney(Double value){
         String[] val=String.valueOf(value).split("\\.");
         return StringUtils.joinWith(",",val[0],StringUtils.rightPad(val[1],3-val[1].length(),"0")).concat(" €");
@@ -57,6 +61,9 @@ public class DesktopRender {
 
     public static String formatOrderText(String first, String second) {
         return "<html><center style=\"color:#ffffff; font-weight: bold; \">" + first + "<br>" + second + "</center></html>";
+    }
+    public static String formatOrderText(String first) {
+        return "<html><center style=\"color:#ffffff; font-weight: bold; \">" + first  + "</center></html>";
     }
 
     public static String formatButton(String sup, String first, String second) {

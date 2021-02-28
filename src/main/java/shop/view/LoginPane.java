@@ -10,6 +10,7 @@ import javax.persistence.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import static java.util.Objects.requireNonNull;
 import static shop.utils.DesktopRender.FONT_FAMILY;
 
 public class LoginPane extends AContainer implements ActionListener {
@@ -36,6 +37,12 @@ public class LoginPane extends AContainer implements ActionListener {
 
         JButton btn_close = new JButton();
         btn_close.setIcon(new ImageIcon(this.getClass().getResource("/images/esci.png")));
+        btn_close.setPreferredSize(new Dimension(48, 48));
+        btn_close.setContentAreaFilled(false);
+        btn_close.setOpaque(false);
+        btn_close.setBorderPainted(false);
+        btn_close.setFocusPainted(false);
+
         toolbar.add(btn_close);
         btn_close.setFocusPainted(false);
         btn_close.setToolTipText("Chiudi");
@@ -52,11 +59,33 @@ public class LoginPane extends AContainer implements ActionListener {
         loginPanel.setLayout(new GridBagLayout());
         loginPanel.setBackground(new Color(128, 0, 128));
         loginPanel.setPreferredSize(new Dimension(825, 100));
+        JLabel accountLabel = new JLabel(new ImageIcon(requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/account.png"))));
         font = new Font(FONT_FAMILY, Font.BOLD, 36);
         lblFormName = new JLabel("Login Form");
         lblFormName.setForeground(Color.WHITE);
         lblFormName.setFont(font);
-        loginPanel.add(lblFormName);
+
+        loginPanel.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+
+        c.anchor = GridBagConstraints.WEST;
+        c.weightx = 1;
+        c.weighty = 1;
+
+        c.gridx = 0;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 20, 2, 0);
+        loginPanel.add(accountLabel, c);
+
+        c.anchor = GridBagConstraints.CENTER;
+        c.gridx = 1;
+        c.gridy = 0;
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.insets = new Insets(2, 0, 2, 0);
+        loginPanel.add(lblFormName, c);
 
         wrapperPane.add(loginPanel, BorderLayout.NORTH);
 
@@ -77,7 +106,6 @@ public class LoginPane extends AContainer implements ActionListener {
         jtfUsername.setBackground(DesktopRender.JTF_COLOR);
         jtfUsername.setPreferredSize(new Dimension(350, 50));
         jtfUsername.setFont(font);
-
 
         jtfPassword.setBorder(new LineBorder(Color.BLACK));
         jtfPassword.setCaretColor(new Color(255, 255, 255));

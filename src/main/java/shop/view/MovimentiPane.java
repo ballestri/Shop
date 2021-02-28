@@ -87,7 +87,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
     }
 
     public void initComponents() {
-        internPane.setBounds(90, 110, 1200, 675);
+        internPane.setBounds(50, 110, 1200, 675);
         wrapperPane.setPreferredSize(new Dimension(1200, 675));
         internPane.setBackground(container.getBackground());
         internPane.setLayout(new BorderLayout());

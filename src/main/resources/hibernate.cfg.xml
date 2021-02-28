@@ -46,5 +46,6 @@
         <mapping class="shop.entity.Categoria"/>
         <mapping class="shop.entity.Posizione"/>
         <mapping class="shop.entity.Unita"/>
+        <mapping class="shop.entity.Cliente"/>
     </session-factory>
 </hibernate-configuration>

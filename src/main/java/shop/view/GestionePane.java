@@ -1,4 +1,5 @@
 package shop.view;
+
 import shop.utils.DesktopRender;
 
 import java.awt.*;
@@ -6,6 +7,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.awt.geom.RoundRectangle2D;
 import java.util.stream.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import static shop.utils.DesktopRender.FONT_FAMILY;
@@ -14,8 +18,9 @@ public class GestionePane extends AContainer implements ActionListener {
 
     public static final Color SELECTED_BG = new Color(224, 122, 95);
     public static final Color UNSELECTED_BG = new Color(162, 210, 255);
+
     // Le funzionalita dell'app
-    protected JButton btn_prima,btn_close;
+    protected JButton btn_prima, btn_close;
     protected Font font;
     protected JToolBar toolbar;
     protected JTabbedPane tabbedPane;
@@ -35,6 +40,12 @@ public class GestionePane extends AContainer implements ActionListener {
         toolbar = new JToolBar();
         btn_prima = new JButton();
         btn_prima.setIcon(new ImageIcon(this.getClass().getResource("/images/prima.png")));
+        btn_prima.setPreferredSize(new Dimension(48, 48));
+        btn_prima.setContentAreaFilled(false);
+        btn_prima.setOpaque(false);
+        btn_prima.setBorderPainted(false);
+        btn_prima.setFocusPainted(false);
+
         toolbar.add(btn_prima);
         btn_prima.setFocusPainted(false);
         btn_prima.addActionListener(this);
@@ -43,11 +54,18 @@ public class GestionePane extends AContainer implements ActionListener {
 
         btn_close = new JButton();
         btn_close.setIcon(new ImageIcon(this.getClass().getResource("/images/esci.png")));
+        btn_close.setPreferredSize(new Dimension(48, 48));
+        btn_close.setContentAreaFilled(false);
+        btn_close.setOpaque(false);
+        btn_close.setBorderPainted(false);
+        btn_close.setFocusPainted(false);
+
         toolbar.add(btn_close);
         btn_close.setFocusPainted(false);
         btn_close.setToolTipText("Chiudi");
         toolbar.addSeparator();
         btn_close.addActionListener(evt -> System.exit(0));
+        //toolbar.setBackground(UNSELECTED_BG);
 
         UIManager.put("TabbedPane.tabInsets", new Insets(12, 40, 12, 10));
         UIManager.put("TabbedPane.contentBorderInsets", new Insets(0, 0, 0, 0));
@@ -56,101 +74,32 @@ public class GestionePane extends AContainer implements ActionListener {
         UIManager.put("TabbedPane.labelShift", 0);
 
 
-        tabbedPane = new JTabbedPane() {
-            @Override public void updateUI() {
-                super.updateUI();
-                setUI(new BasicTabbedPaneUI() {
-                    @Override protected void paintFocusIndicator(Graphics g, int tabPlacement, Rectangle[] rects, int tabIndex, Rectangle iconRect, Rectangle textRect, boolean isSelected) {
-                        // Do not paint anything
-                    }
+        tabbedPane = new JTabbedPane(SwingConstants.LEFT);
+        tabbedPane.setOpaque(true);
+        tabbedPane.setForeground(Color.WHITE);
+        //setBackground(UNSELECTED_BG);
+        tabbedPane.setTabPlacement(SwingConstants.LEFT);
+        tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
 
-                    @Override protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-                        // Do not paint anything
-                    }
-
-                    @Override  protected void paintTabBackground(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-                        g.setColor(isSelected ? SELECTED_BG : UNSELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-
-                    @Override protected void paintContentBorderTopEdge(Graphics g, int tabPlacement, int selectedIndex, int x, int y, int w, int h) {
-                        g.setColor(SELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-
-                    @Override protected void paintContentBorderRightEdge(Graphics g, int tabPlacement, int selectedIndex, int x, int y, int w, int h) {
-                        g.setColor(SELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-
-                    @Override protected void paintContentBorderBottomEdge(Graphics g, int tabPlacement, int selectedIndex, int x, int y, int w, int h) {
-                        g.setColor(SELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-
-                    @Override protected void paintContentBorderLeftEdge(Graphics g, int tabPlacement, int selectedIndex, int x, int y, int w, int h) {
-                        g.setColor(SELECTED_BG);
-                        g.fillRect(x, y, w, h);
-                    }
-                });
-                setOpaque(true);
-                setForeground(Color.WHITE);
-                setBackground(UNSELECTED_BG);
-                setTabPlacement(SwingConstants.LEFT);
-                setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-            }
-        };
-
-
-        /*
-        tabbedPane = new JTabbedPane(SwingConstants.TOP) {
-            @Override
-            public void updateUI() {
-                setOpaque(true);
-                setForeground(Color.WHITE);
-                setBackground(UNSELECTED_BG);
-                setTabPlacement(LEFT);
-                setTabLayoutPolicy(SCROLL_TAB_LAYOUT);
-            }
-        };
-
-
-        ArrayList<String> list_actions = new ArrayList<>(Arrays.asList(DesktopRender.formatButton("Gestione", "Magazzino"), "RILEVAZIONI", "GIACENZA", "STORICO", "MOVIMENTAZIONI", "RICHIESTE"));
-        for (String action : list_actions)
-            switch (action) {
-                case "ANAGRAFICA":
-                    tabbedPane.addTab(action, new AnagraficaPane().getPanel());
-                    break;
-                case "RILEVAZIONI":
-                    tabbedPane.addTab(action, new RilevazionePane().getPanel());
-                    break;
-                case "GIACENZA":
-                    tabbedPane.addTab(action, new GiacenzaPane().getPanel());
-                    break;
-                case "STORICO":
-                    tabbedPane.addTab(action, new StoricoPane().getPanel());
-                    break;
-                case "MOVIMENTAZIONI":
-                    tabbedPane.addTab(action, new MovimentiPane().getPanel());
-                    break;
-                default:
-                    tabbedPane.addTab(action, new JPanel());
-                    break;
-            }
-
-         */
+        tabbedPane.addTab(DesktopRender.formatButton("Inventory", "System"), new ImageIcon(getClass().getResource("/images/logo.png")), new JPanel());
         tabbedPane.addTab(DesktopRender.formatButton("Dashboard"), new ImageIcon(getClass().getResource("/images/home.png")), new JPanel());
         tabbedPane.addTab(DesktopRender.formatButton("Gestione", "Magazzino"), new ImageIcon(getClass().getResource("/images/magazzino.png")), new MagazzinoPane().getPanel());
         tabbedPane.addTab(DesktopRender.formatButton("Gestione", "Clienti"), new ImageIcon(getClass().getResource("/images/clienti.png")), new ClientePane().getPanel());
         tabbedPane.addTab(DesktopRender.formatButton("Gestione", "Fornitori"), new ImageIcon(getClass().getResource("/images/fornitori.png")), new FornitorePane().getPanel());
-        tabbedPane.addTab(DesktopRender.formatButton("Vendite"), new ImageIcon(getClass().getResource("/images/vendita.png")), new JPanel());
+        tabbedPane.addTab(DesktopRender.formatButton("Vendite"), new ImageIcon(getClass().getResource("/images/vendita.png")), new OrderPane().getPanel());
         tabbedPane.addTab(DesktopRender.formatButton("Contabilita'"), new ImageIcon(getClass().getResource("/images/contabilita.png")), new JPanel());
         tabbedPane.addTab(DesktopRender.formatButton("Report"), new ImageIcon(getClass().getResource("/images/report.png")), new JPanel());
 
 
+        Border line = BorderFactory.createLineBorder(Color.WHITE);
+        Border empty = new EmptyBorder(5, 5, 5, 5);
+        CompoundBorder border = new CompoundBorder(line, empty);
 
 
-        // btn_close.setIcon(new ImageIcon(this.getClass().getResource("/images/esci.png")));
+
+
+
+
 
         tabbedPane.setFont(new Font(FONT_FAMILY, Font.BOLD, 20));
         toolbar.setFloatable(false);
@@ -186,10 +135,6 @@ public class GestionePane extends AContainer implements ActionListener {
         };
         tabbedPane.addMouseMotionListener(listener);
         tabbedPane.setBackground(container.getBackground());
-        //tabbedPane.setBackground(new Color(33, 158, 188));
-
-
-
     }
 
 
@@ -197,17 +142,21 @@ public class GestionePane extends AContainer implements ActionListener {
 
         protected void paintTabBackground(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
             Graphics2D g2 = (Graphics2D) g;
-            Color color;
-            if (isSelected) {
-                color = SELECTED_BG;
-            } else if (getRolloverTab() == tabIndex) {
-                color = UNSELECTED_BG;
-            } else {
-                color = UNSELECTED_BG;
+            Color color = new Color(39, 55, 70);
+            if (tabIndex > 0) {
+
+                if (isSelected) {
+                    color = SELECTED_BG;
+                } else if (getRolloverTab() == tabIndex) {
+                    color = UNSELECTED_BG;
+                } else {
+                    color = UNSELECTED_BG;
+                }
+
+                //g2.fill(new Rectangle2D.Double(x , y, w, h));
             }
             g2.setPaint(color);
             g2.fill(new RoundRectangle2D.Double(x, y, w, h, 30, 30));
-           //g2.fill(new Rectangle2D.Double(x , y, w, h));
         }
 
         protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
@@ -222,7 +171,6 @@ public class GestionePane extends AContainer implements ActionListener {
     private static int findTabPaneIndex(Point p, JTabbedPane tabbedPane) {
         return IntStream.range(0, tabbedPane.getTabCount()).filter(i -> tabbedPane.getBoundsAt(i).contains(p.x, p.y)).findFirst().orElse(-1);
     }
-
 
 
     @Override

@@ -43,7 +43,7 @@ public class MagazzinoPane extends AContainer implements ActionListener {
         buttonPane.setBackground(container.getBackground());
         buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER, 30, 15));
 
-        btn_anagrafica = new JButton(DesktopRender.formatButton("Anagrafica"));
+        btn_anagrafica = new JButton(DesktopRender.formatButton("Info articolo"));
         btn_carico = new JButton(DesktopRender.formatButton("Carico"));
         btn_giacenza = new JButton(DesktopRender.formatButton("Giacenza"));
         btn_movimentazione = new JButton(DesktopRender.formatButton("Movimentazione"));
