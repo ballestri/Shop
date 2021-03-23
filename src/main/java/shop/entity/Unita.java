@@ -1,10 +1,11 @@
 package shop.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table
-public class Unita {
+public class Unita implements Serializable {
 
     @Id
     @Column

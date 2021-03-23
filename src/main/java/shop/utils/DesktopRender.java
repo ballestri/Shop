@@ -39,13 +39,16 @@ public class DesktopRender {
         return sb.toString();
     }
 
-    public static String formatProductCode(Integer UID) {
+    public static String formatUIDCode(Integer UID) {
         return StringUtils.leftPad(padLeftZeros(String.valueOf(UID)), CODE_LENGTH, "00");
     }
 
+    /*
     public static String formatClientCode(Integer UID) {
         return StringUtils.leftPad(padLeftZeros(String.valueOf(UID)), CODE_LENGTH, "00");
     }
+
+     */
 
     public static String formatMoney(Double value){
         String[] val=String.valueOf(value).split("\\.");
@@ -70,6 +73,8 @@ public class DesktopRender {
         return "<html><sup style=\"color:#FFDEAD; font-size: 9px; font-weight: bold; \">" + sup + "</sup><center>"
                 + first + "<br>" + second + "</center></html>";
     }
+
+
 
     public static void resizeColumnWidth(JTable table) {
 

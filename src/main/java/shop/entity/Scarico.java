@@ -1,12 +1,13 @@
 package shop.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class Scarico {
+public class Scarico implements Serializable {
 
     @Id
     @GeneratedValue

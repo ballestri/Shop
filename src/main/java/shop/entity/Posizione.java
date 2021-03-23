@@ -1,10 +1,11 @@
 package shop.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table
-public class Posizione {
+public class Posizione implements Serializable {
 
     @Id
     @Column

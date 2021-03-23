@@ -2,7 +2,6 @@ package shop.dao;
 
 import shop.entity.Carico;
 import shop.utils.DesktopRender;
-
 import javax.persistence.TypedQuery;
 import javax.swing.*;
 import java.text.SimpleDateFormat;

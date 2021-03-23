@@ -1,5 +1,8 @@
 package shop.view;
 
+import shop.controller.article.RendererHighlighted;
+import shop.controller.article.RowFilterUtil;
+import shop.entity.Cliente;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
 
@@ -11,25 +14,24 @@ import java.awt.event.*;
 
 
 import static java.util.Objects.requireNonNull;
+import static shop.dao.ClienteDAO.*;
 import static shop.utils.DesktopRender.*;
+import static shop.view.GestionePane.tableModelCliente;
 
 public class ClientePane extends AContainer implements ActionListener {
 
     // pannello interno
-    protected JPanel internPane, wrapperPane, clientePanel, clientPaneWrapper, movimentPane, tablePanewrapper,orderPane;
+    protected JPanel internPane, wrapperPane, clientePanel, clientPaneWrapper, movimentPane, tablePanewrapper, orderPane;
     protected RoundedPanel titleClientePane, infoClientePane, buttonPane;
 
-    protected JLabel lblNome, lblCognome, lblTelefono, lblEmail, lblIndirizzo,lblComune;
-    public static JTextField jtfNome, jtfCognome, jtfTelefono, jtfEmail, jtfIndirizzo,jtfComune;
+    protected JLabel lblNome, lblCognome, lblTelefono, lblEmail, lblIndirizzo, lblComune;
+    public static JTextField filterCustomer,jtfNome, jtfCognome, jtfTelefono, jtfEmail, jtfIndirizzo, jtfComune;
 
-    public static DefaultTableModel tableModel;
-    JTableHeader tableHeader;
-    public static JTable table;
+    public static  JTable table;
     JScrollPane scrollPane;
-
     RoundedPanel roundedPanel;
     protected JToolBar toolbar;
-    protected JButton btn_insert,btn_update,btn_remove, btn_refresh_cliente;
+    protected JButton btn_insert, btn_update, btn_remove, btn_clear, btn_refresh_cliente;
 
     // Pulsante di carica articolo
     private Font font;
@@ -46,9 +48,10 @@ public class ClientePane extends AContainer implements ActionListener {
         wrapperPane = new JPanel();
         clientePanel = new JPanel();
         movimentPane = new JPanel();
-        orderPane= new JPanel();
+        orderPane = new JPanel();
 
         initComponents();
+        //loadCliente().forEach(cl -> clienteTableModel.addRow(new String[]{String.valueOf(cl.getUID()), cl.getCodice(),cl.getCognome(), cl.getNome(), cl.getTelefono(), cl.getEmail(), cl.getIndirizzo(), cl.getComune()}));
         container.setLayout(new BorderLayout());
     }
 
@@ -94,14 +97,13 @@ public class ClientePane extends AContainer implements ActionListener {
         orderPane.setPreferredSize(new Dimension(675, 80));
         orderPane.setBackground(wrapperPane.getBackground());
 
-
         buildTableWrapper();
         buildClientePane();
         buildOrderInformation();
 
         wrapperPane.setLayout(new BorderLayout());
         wrapperPane.add(clientPaneWrapper, BorderLayout.WEST);
-        tablePanewrapper.add(orderPane,BorderLayout.SOUTH);
+        tablePanewrapper.add(orderPane, BorderLayout.SOUTH);
         wrapperPane.add(tablePanewrapper, BorderLayout.CENTER);
 
     }
@@ -116,17 +118,23 @@ public class ClientePane extends AContainer implements ActionListener {
         titleClientePane.setPreferredSize(new Dimension(400, 70));
         infoClientePane.setPreferredSize(new Dimension(400, 325));
         buttonPane.setPreferredSize(new Dimension(400, 70));
+        buttonPane.setBackground(roundedPanel.getBackground());
         infoClientePane.setBorder(new EmptyBorder(20, 10, 40, 10));
 
-        btn_refresh_cliente = new JButton(new ImageIcon(requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/refresh.png"))));
+        btn_refresh_cliente = new JButton(new ImageIcon(requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/cliente.png"))));
         btn_refresh_cliente.setPreferredSize(new Dimension(48, 48));
         btn_refresh_cliente.setContentAreaFilled(false);
         btn_refresh_cliente.setOpaque(false);
+        btn_refresh_cliente.setBorderPainted(false);
 
-        JLabel lblFormName = new JLabel("Anagrafica cliente");
+        JLabel lblFormName = new JLabel("Ricerca");
         lblFormName.setFont(new Font(FONT_FAMILY, Font.BOLD, 18));
         titleClientePane.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
+
+        filterCustomer.setBackground(DesktopRender.JTF_COLOR);
+        filterCustomer.setFont(font);
+        filterCustomer.setBorder(new LineBorder(Color.BLACK));
 
         c.anchor = GridBagConstraints.WEST;
         c.weightx = 1;
@@ -136,16 +144,23 @@ public class ClientePane extends AContainer implements ActionListener {
         c.gridy = 0;
 
         c.anchor = GridBagConstraints.LINE_START;
-        c.insets = new Insets(2, 20, 2, 0);
+        c.insets = new Insets(2, 15, 2, 0);
         titleClientePane.add(btn_refresh_cliente, c);
 
-        c.anchor = GridBagConstraints.CENTER;
+        c.anchor = GridBagConstraints.LINE_START;
         c.gridx = 1;
         c.gridy = 0;
 
-        c.anchor = GridBagConstraints.LINE_START;
         c.insets = new Insets(2, 0, 2, 0);
         titleClientePane.add(lblFormName, c);
+
+        c.anchor = GridBagConstraints.LINE_START;
+        c.gridx = 2;
+        c.gridy = 0;
+
+        c.insets = new Insets(2, 0, 2, 0);
+        titleClientePane.add(filterCustomer, c);
+
 
         lblCognome = new JLabel("Cognome");
         lblCognome.setFont(font);
@@ -296,25 +311,40 @@ public class ClientePane extends AContainer implements ActionListener {
         clientPaneWrapper.add(buttonPane);
     }
 
-    void buildButtonPane(){
+    void buildButtonPane() {
 
         btn_insert = new JButton(DesktopRender.formatButton("Insert"));
         btn_update = new JButton(DesktopRender.formatButton("Update"));
         btn_remove = new JButton(DesktopRender.formatButton("Remove"));
+        btn_clear = new JButton(DesktopRender.formatButton("+ New"));
 
         buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 15));
 
         formatButton(btn_insert);
         formatButton(btn_update);
         formatButton(btn_remove);
+        formatButton(btn_clear);
 
         buttonPane.add(btn_insert);
         buttonPane.add(btn_update);
         buttonPane.add(btn_remove);
+        buttonPane.add(btn_clear);
 
-        btn_insert.addActionListener(this);
-        btn_update.addActionListener(this);
-        btn_remove.addActionListener(this);
+        btn_insert.addActionListener(e -> insertCliente());
+        btn_remove.addActionListener(e -> deleteCliente());
+        table.getSelectionModel().addListSelectionListener(e -> getSelectedCliente());
+        btn_clear.addActionListener(e -> {
+            clearField();
+            table.getSelectionModel().clearSelection();
+        });
+
+        btn_update.addActionListener(e -> {
+            updateCliente(getCliente());
+            table.getSelectionModel().clearSelection();
+            clearField();
+        });
+
+
     }
 
 
@@ -326,19 +356,13 @@ public class ClientePane extends AContainer implements ActionListener {
         btn.setFocusPainted(false);
         btn.addActionListener(this);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setPreferredSize(new Dimension(100, 40));
+        btn.setPreferredSize(new Dimension(80, 40));
     }
 
     void buildTableWrapper() {
-        String[] header = {"Cliente ID", "Cognome", "Nome", "Telefono", "Email"};
 
-        tableModel = new DefaultTableModel(new Object[][]{}, header) {
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
 
-        table = new JTable(tableModel) {
+        table = new JTable(tableModelCliente) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component returnComp = super.prepareRenderer(renderer, row, column);
                 int rendererWidth = returnComp.getPreferredSize().width;
@@ -347,30 +371,36 @@ public class ClientePane extends AContainer implements ActionListener {
                 if (!returnComp.getBackground().equals(getSelectionBackground())) {
                     returnComp.setBackground((row % 2 == 0 ? new Color(88, 214, 141) : Color.WHITE));
                 }
+
+                if (column == 1)
+                    returnComp.setFont(font);
                 return returnComp;
             }
         };
 
-        tableHeader = table.getTableHeader();
-        DefaultTableCellRenderer renderer = (DefaultTableCellRenderer) table.getDefaultRenderer(Object.class);
+        filterCustomer = RowFilterUtil.createRowFilter(table);
+        filterCustomer.setColumns(14);
+        RendererHighlighted renderer = new RendererHighlighted(filterCustomer);
         table.setDefaultRenderer(Object.class, renderer);
-        tableHeader.setBackground(new Color(39, 55, 70));
-        tableHeader.setForeground(Color.WHITE);
+        table.getTableHeader().setBackground(new Color(39, 55, 70));
+        table.getTableHeader().setForeground(Color.WHITE);
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        table.getTableHeader().setForeground(Color.WHITE);
         table.setFillsViewportHeight(true);
-        tableHeader.setReorderingAllowed(false);
-        tableHeader.setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
+        table.getTableHeader().setReorderingAllowed(false);
+        table.getTableHeader().setFont(new Font(FONT_FAMILY, Font.BOLD, 16));
         table.setFont(new Font(FONT_FAMILY, Font.PLAIN, 15));
         table.setRowHeight(25);
         table.setCursor(new Cursor(Cursor.HAND_CURSOR));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setPreferredScrollableViewportSize(new Dimension(675, 475));
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        table.getColumnModel().getColumn(0).setMinWidth(120);
-        table.getColumnModel().getColumn(1).setMinWidth(130);
+        table.getColumnModel().getColumn(0).setMinWidth(0);
+        table.getColumnModel().getColumn(0).setMaxWidth(0);
+        table.getColumnModel().getColumn(1).setMinWidth(120);
         table.getColumnModel().getColumn(2).setMinWidth(130);
-        table.getColumnModel().getColumn(3).setMinWidth(220);
-        table.setAutoCreateRowSorter(true);
+        table.getColumnModel().getColumn(3).setMinWidth(130);
+        table.getColumnModel().getColumn(4).setMinWidth(220);
         table.setFocusable(false);
 
         scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -383,16 +413,16 @@ public class ClientePane extends AContainer implements ActionListener {
     }
 
 
-    void buildOrderInformation(){
+    void buildOrderInformation() {
 
         orderPane.setLayout(new FlowLayout(FlowLayout.CENTER, 15, 15));
-        JPanel orderCountPane= new JPanel();
-        JPanel orderTotalAmount= new JPanel();
-        JPanel orderLastDate= new JPanel();
+        JPanel orderCountPane = new JPanel();
+        JPanel orderTotalAmount = new JPanel();
+        JPanel orderLastDate = new JPanel();
 
-        orderCountPane.setPreferredSize(new Dimension(210,65));
-        orderTotalAmount.setPreferredSize(new Dimension(210,65));
-        orderLastDate.setPreferredSize(new Dimension(210,65));
+        orderCountPane.setPreferredSize(new Dimension(210, 65));
+        orderTotalAmount.setPreferredSize(new Dimension(210, 65));
+        orderLastDate.setPreferredSize(new Dimension(210, 65));
 
         Border line = BorderFactory.createLineBorder(Color.WHITE);
         Border empty = new EmptyBorder(5, 5, 5, 5);
@@ -407,9 +437,9 @@ public class ClientePane extends AContainer implements ActionListener {
         orderLastDate.setBackground(wrapperPane.getBackground());
 
 
-        JLabel jlOrderCount= new JLabel(formatOrderText("Numero di ordine","##"));
-        JLabel jlTotalAmount= new JLabel(formatOrderText("Importo totale ordine","##"));
-        JLabel jlLastOrderDate= new JLabel(formatOrderText("Data ultimo ordine","10-02-2021"));
+        JLabel jlOrderCount = new JLabel(formatOrderText("Numero di ordine", "##"));
+        JLabel jlTotalAmount = new JLabel(formatOrderText("Importo totale ordine", "##"));
+        JLabel jlLastOrderDate = new JLabel(formatOrderText("Data ultimo ordine", "10-02-2021"));
 
         jlOrderCount.setFont(font);
         jlTotalAmount.setFont(font);
@@ -429,6 +459,22 @@ public class ClientePane extends AContainer implements ActionListener {
         orderPane.add(orderTotalAmount);
         orderPane.add(orderLastDate);
 
+    }
+
+    public static  Cliente getCliente() {
+        Cliente cliente = new Cliente();
+        if (table.getSelectedRow() >= 0) {
+            int index = table.getSelectedRow();
+            cliente.setUID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
+            cliente.setCodice(formatUIDCode(Integer.valueOf(String.valueOf(table.getValueAt(index, 0)))));
+            cliente.setCognome(String.valueOf(table.getValueAt(index, 2)));
+            cliente.setNome(String.valueOf(table.getValueAt(index, 3)));
+            cliente.setTelefono(String.valueOf(table.getValueAt(index, 4)));
+            cliente.setEmail(String.valueOf(table.getValueAt(index, 5)));
+            cliente.setIndirizzo(String.valueOf(table.getValueAt(index, 6)));
+            cliente.setComune(String.valueOf(table.getValueAt(index, 7)));
+        }
+        return cliente;
     }
 
     @Override

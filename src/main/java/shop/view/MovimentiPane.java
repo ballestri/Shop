@@ -130,6 +130,7 @@ public class MovimentiPane extends AContainer implements ActionListener {
         btn_refresh_product.setPreferredSize(new Dimension(48, 48));
         btn_refresh_product.setContentAreaFilled(false);
         btn_refresh_product.setOpaque(false);
+        btn_refresh_product.setBorderPainted(false);
 
         JLabel lblFormName = new JLabel("Prodotto in magazzino");
         lblFormName.setFont(new Font(FONT_FAMILY, Font.BOLD, 18));
@@ -400,11 +401,13 @@ public class MovimentiPane extends AContainer implements ActionListener {
         btn_search.setPreferredSize(new Dimension(48, 48));
         btn_search.setContentAreaFilled(false);
         btn_search.setOpaque(false);
+        btn_search.setBorderPainted(false);
 
         btn_refresh = new JButton(new ImageIcon(requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/refresh.png"))));
         btn_refresh.setPreferredSize(new Dimension(48, 48));
         btn_refresh.setContentAreaFilled(false);
         btn_refresh.setOpaque(false);
+        btn_refresh.setBorderPainted(false);
 
         searchPane.add(lbl_begin, c);
         searchPane.add(beginChooser, c);

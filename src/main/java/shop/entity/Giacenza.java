@@ -1,11 +1,12 @@
 package shop.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class Giacenza {
+public class Giacenza implements Serializable {
 
     @Id
     @Column

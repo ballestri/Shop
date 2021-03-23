@@ -34,17 +34,13 @@ public class LoginPane extends AContainer implements ActionListener {
 
         // I pulsanti della Toolbar
         JToolBar toolbar = new JToolBar();
-
         JButton btn_close = new JButton();
-        btn_close.setIcon(new ImageIcon(this.getClass().getResource("/images/esci.png")));
+        btn_close.setIcon(new ImageIcon(getClass().getResource("/images/esci.png")));
         btn_close.setPreferredSize(new Dimension(48, 48));
-        btn_close.setContentAreaFilled(false);
-        btn_close.setOpaque(false);
-        btn_close.setBorderPainted(false);
         btn_close.setFocusPainted(false);
-
+        btn_close.setContentAreaFilled(true);
+        btn_close.setOpaque(true);
         toolbar.add(btn_close);
-        btn_close.setFocusPainted(false);
         btn_close.setToolTipText("Chiudi");
         toolbar.addSeparator();
         btn_close.addActionListener(evt -> System.exit(0));
@@ -174,6 +170,8 @@ public class LoginPane extends AContainer implements ActionListener {
 
         wrapperPane.add(informationPanel, BorderLayout.CENTER);
         btn_login.addActionListener(this);
+
+        toolbar.setLayout(new BoxLayout(toolbar, 0));
 
         container.add(wrapperPane);
         toolbar.setFloatable(false);

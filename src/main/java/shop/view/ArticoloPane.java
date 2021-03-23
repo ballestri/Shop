@@ -20,6 +20,7 @@ import static shop.dao.CategoriaDAO.getAllCategories;
 import static shop.dao.PositionDAO.getAllPosizione;
 import static shop.dao.UnitDAO.getAllUnita;
 import static shop.utils.DesktopRender.*;
+import static shop.view.GestionePane.tableModelArticolo;
 
 
 public class ArticoloPane extends AContainer implements ActionListener {
@@ -42,7 +43,6 @@ public class ArticoloPane extends AContainer implements ActionListener {
     JScrollPane scrollPane;
     RoundedPanel actionPaneWrapper, informationPane;
     // Creazione della tabella che contiene le categorie
-    public static DefaultTableModel tableModel;
     JTableHeader tableHeader;
     public static JTable table;
 
@@ -506,14 +506,9 @@ public class ArticoloPane extends AContainer implements ActionListener {
     }
 
     void buildArticleDetails() {
-        String[] header = {"UID", "Codice", "Descrizione", "Categoria", "Posizione", "Unita'", "Prezzo", "Scorta", "Provenienza", "Data inserimento"};
-        tableModel = new DefaultTableModel(new Object[][]{}, header) {
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
 
-        table = new JTable(tableModel) {
+
+        table = new JTable(tableModelArticolo) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
                 Component component = super.prepareRenderer(renderer, row, column);
                 int rendererWidth = component.getPreferredSize().width;
@@ -533,9 +528,12 @@ public class ArticoloPane extends AContainer implements ActionListener {
 
         };
 
-        loadArticle().forEach(article -> tableModel.addRow(new String[]{String.valueOf(article.getUID()), String.valueOf(article.getCodice()), article.getDescrizione(), article.getCategoria().getCategoria(),
+        /*
+        loadArticle().forEach(article -> tableModelArticolo.addRow(new String[]{String.valueOf(article.getUID()), String.valueOf(article.getCodice()), article.getDescrizione(), article.getCategoria().getCategoria(),
                 article.getPosizione().getPosizione(), article.getUnita().getUnita(), formatMoney(article.getPrezzo()),
                 String.valueOf(article.getScorta()), article.getProvenienza(), (new SimpleDateFormat(DATE_FORMAT)).format(article.getDataIns())}));
+        */
+
 
         tableHeader = table.getTableHeader();
         tableHeader.setBackground(new Color(39, 55, 70));
@@ -625,7 +623,7 @@ public class ArticoloPane extends AContainer implements ActionListener {
         if (table.getSelectedRow() >= 0) {
             int index = table.getSelectedRow();
             articolo.setUID(Integer.valueOf(String.valueOf(table.getValueAt(index, 0))));
-            articolo.setCodice(formatProductCode(Integer.valueOf(String.valueOf(table.getValueAt(index, 0)))));
+            articolo.setCodice(formatUIDCode(Integer.valueOf(String.valueOf(table.getValueAt(index, 0)))));
             articolo.setDescrizione(String.valueOf(table.getValueAt(index, 2)));
 
             articolo.setCategoria(new Categoria(String.valueOf(table.getValueAt(index, 3)), false));

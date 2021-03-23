@@ -1,5 +1,6 @@
 package shop.dao;
 
+import org.hibernate.query.NativeQuery;
 import shop.entity.*;
 import shop.utils.DesktopRender;
 import shop.view.MovimentiPane;
@@ -9,11 +10,13 @@ import javax.swing.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Date;
-
+import javax.persistence.Query;
+import java.math.BigInteger;
 import static javax.swing.JOptionPane.*;
 import static shop.utils.DesktopRender.formatMoney;
-import static shop.utils.DesktopRender.formatProductCode;
+import static shop.utils.DesktopRender.formatUIDCode;
 import static shop.view.ArticoloPane.*;
+import static shop.view.GestionePane.tableModelArticolo;
 
 public class ArticleDAO {
 
@@ -33,17 +36,36 @@ public class ArticleDAO {
             em.getTransaction().commit();
             em.clear();
             em.close();
-            tableModel.removeRow(index);
+            tableModelArticolo.removeRow(index);
             initArticlePane();
-            refreshMovimentTable();
+            //refreshMovimentTable();
         }
         showMessageDialog(null, "Cancellazione effettuata", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static Integer checkArticolo(Articolo a){
+        EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
+        em.getTransaction().begin();
+        Query query = em.createNativeQuery("SELECT count(*) FROM ARTICOLO WHERE isDeleted=false and descrizione=:descrizione and categoria=:categoria and posizione=:posizione and unita=:unita and prezzo=:prezzo and scorta=:scorta and provenienza=:provenienza")
+                .setParameter("descrizione", a.getDescrizione())
+                .setParameter("categoria", a.getCategoria())
+                .setParameter("posizione", a.getPosizione())
+                .setParameter("unita", a.getUnita())
+                .setParameter("prezzo", a.getPrezzo())
+                .setParameter("scorta", a.getScorta())
+                .setParameter("provenienza", a.getProvenienza())
+                .unwrap(NativeQuery.class);
+        BigInteger rowCnt = (BigInteger) query.getSingleResult();
+        em.getTransaction().commit();
+        em.clear();
+        em.close();
+        return rowCnt.intValue();
     }
 
     public static void insertArticle() {
 
         Articolo articolo = new Articolo();
-        articolo.setCodice(formatProductCode(articolo.getUID()));
+        articolo.setCodice(formatUIDCode(articolo.getUID()));
         articolo.setDescrizione(jtfDescrizione.getText());
         articolo.setCategoria(new Categoria(String.valueOf(jcbCategoria.getSelectedItem()), false));
         articolo.setPosizione(new Posizione(String.valueOf(jcbPosizione.getSelectedItem()), false));
@@ -55,23 +77,22 @@ public class ArticleDAO {
 
         if (articolo.getDescrizione().isEmpty()) {
             showMessageDialog(null, "Descrizione articolo vuoto", "Info Dialog", JOptionPane.ERROR_MESSAGE);
-        } else if (!jtfCodice.getText().isEmpty()) {
+        } else if (checkArticolo(articolo)>0) {
             showMessageDialog(null, "Articolo già presente", "Info Dialog", JOptionPane.ERROR_MESSAGE);
         } else {
             EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
             em.persist(articolo);
             em.getTransaction().commit();
-
             Articolo a = em.find(Articolo.class, articolo.getUID());
             em.getTransaction().begin();
-            a.setCodice(formatProductCode(articolo.getUID()));
+            a.setCodice(formatUIDCode(articolo.getUID()));
             em.getTransaction().commit();
             em.clear();
             em.close();
-            tableModel.addRow(new String[]{String.valueOf(articolo.getUID()), formatProductCode(articolo.getUID()), articolo.getDescrizione(), String.valueOf(articolo.getCategoria().getCategoria()), String.valueOf(articolo.getPosizione().getPosizione()), String.valueOf(articolo.getUnita().getUnita()), formatMoney(articolo.getPrezzo()), String.valueOf(articolo.getScorta()), articolo.getProvenienza(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(articolo.getDataIns())});
+            tableModelArticolo.addRow(new String[]{String.valueOf(articolo.getUID()), formatUIDCode(articolo.getUID()), articolo.getDescrizione(), String.valueOf(articolo.getCategoria().getCategoria()), String.valueOf(articolo.getPosizione().getPosizione()), String.valueOf(articolo.getUnita().getUnita()), formatMoney(articolo.getPrezzo()), String.valueOf(articolo.getScorta()), articolo.getProvenienza(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(articolo.getDataIns())});
             showMessageDialog(null, "Articolo inserito", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
-            refreshMovimentTable();
+            //refreshMovimentTable();
         }
 
         initArticlePane();
@@ -98,7 +119,7 @@ public class ArticleDAO {
             return;
         }
 
-        if (checkArticle(s.getUID())) {
+        if (checkUpdateArticle(s.getUID())) {
             articlePane.removeAll();
             articlePane.revalidate();
             articlePane.repaint();
@@ -108,7 +129,7 @@ public class ArticleDAO {
             EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
             em.getTransaction().begin();
             Articolo article = em.find(Articolo.class, s.getUID());
-            article.setCodice(formatProductCode(s.getUID()));
+            article.setCodice(formatUIDCode(s.getUID()));
             article.setDescrizione(s.getDescrizione());
 
             Categoria categoria = new Categoria(String.valueOf(s.getCategoria().getCategoria()), false);
@@ -126,16 +147,16 @@ public class ArticleDAO {
             em.close();
 
             int index = table.getSelectedRow();
-            tableModel.setValueAt(article.getDescrizione(), index, 2);
-            tableModel.setValueAt(categoria.getCategoria(), index, 3);
-            tableModel.setValueAt(posizione.getPosizione(), index, 4);
-            tableModel.setValueAt(unita.getUnita(), index, 5);
-            tableModel.setValueAt(formatMoney(article.getPrezzo()), index, 6);
-            tableModel.setValueAt(article.getScorta(), index, 7);
-            tableModel.setValueAt(article.getProvenienza(), index, 8);
+            tableModelArticolo.setValueAt(article.getDescrizione(), index, 2);
+            tableModelArticolo.setValueAt(categoria.getCategoria(), index, 3);
+            tableModelArticolo.setValueAt(posizione.getPosizione(), index, 4);
+            tableModelArticolo.setValueAt(unita.getUnita(), index, 5);
+            tableModelArticolo.setValueAt(formatMoney(article.getPrezzo()), index, 6);
+            tableModelArticolo.setValueAt(article.getScorta(), index, 7);
+            tableModelArticolo.setValueAt(article.getProvenienza(), index, 8);
 
             showMessageDialog(null, "Articolo aggiornato", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);
-            refreshMovimentTable();
+            //refreshMovimentTable();
         }
 
         initArticlePane();
@@ -145,7 +166,8 @@ public class ArticleDAO {
         alignArticoloInit();
     }
 
-    private static boolean checkArticle(Integer UID) {
+
+    private static boolean checkUpdateArticle(Integer UID) {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
         Articolo articolo = em.find(Articolo.class, UID);
@@ -155,6 +177,7 @@ public class ArticleDAO {
         em.close();
         return isPresent;
     }
+
 
 
     // inizializzazione del campi del pannello degli articoli
@@ -189,11 +212,14 @@ public class ArticleDAO {
         return new ArrayList<>(results);
     }
 
+    /*
     public static void refreshMovimentTable() {
         DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>(DAOUtils.getAllCodici().toArray(new String[0]));
         MovimentiPane.jcbCodice.setModel(model);
         MovimentiPane.jcbCodice.validate();
         MovimentiPane.jcbCodice.repaint();
     }
+
+     */
 
 }

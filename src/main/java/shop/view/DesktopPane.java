@@ -15,7 +15,6 @@ public class DesktopPane extends JFrame {
     private static final int WIDTH = 1575;
     private static final int HEIGHT = 960;
 
-
     public DesktopPane() {
         setTitle("Shop Platform v. 1.0");
         setDefaultCloseOperation(HIDE_ON_CLOSE);
@@ -28,7 +27,8 @@ public class DesktopPane extends JFrame {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = getSize();
         setLocation(new Point((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2));
-        setIconImage(new ImageIcon(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/ico.png"))).getImage());
+        setIconImage(new ImageIcon(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource("images/window.png"))).getImage());
+        setLayout(new BorderLayout());
         getContentPane().removeAll();
         getContentPane().revalidate();
         getContentPane().add(new LoginPane().getPanel());
@@ -46,20 +46,9 @@ public class DesktopPane extends JFrame {
 
         setDefaultLookAndFeelDecorated(true);
         (new DesktopPane()).setVisible(true);
-
-
-        /*
-        Configuration configuration = new Configuration();
-        configuration.configure("application.properties");
-        */
-
-
-
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
-
         em.createNativeQuery("DROP TABLE if exists Credentials", Credentials.class);
         em.getTransaction().begin();
-
         Credentials credentials = new Credentials();
         credentials.setUsername("shop");
         credentials.setPassword("shop");
@@ -72,50 +61,6 @@ public class DesktopPane extends JFrame {
         em.clear();
         em.close();
 
-
-        /*
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        session.beginTransaction();
-        Credentials credentials = new Credentials();
-        credentials.setUsername("shop");
-        credentials.setPassword("shop");
-        session.save(credentials);
-
-        //Commit the transaction
-        session.getTransaction().commit();
-        HibernateUtil.shutdown();
-        session.close();
-        */
-
-        /*
-        try {
-            Connection con = (new DB_INFO()).getConnection();
-            ScriptRunner sr = new ScriptRunner(con);
-            BufferedReader is = new BufferedReader(
-                    new InputStreamReader(Objects.requireNonNull(DesktopPane.class.getClassLoader().getResourceAsStream("config/shop.sql"))));
-            sr.runScript(is);
-            is.close();
-            con.close();
-        } catch (IOException | SQLException e) {
-            e.printStackTrace();
-        }
-
-
-
-        // Connessione al DB
-        try {
-            DB_INFO connectionManager= new DB_INFO();
-            Connection con = connectionManager.getConnection();
-            Statement stmt = con.createStatement();
-            String QUERY="INSERT INTO Credentials VALUES ('" + connectionManager.getUsername() + "','" + connectionManager.getPassword() + "')";
-            stmt.executeUpdate(QUERY);
-            stmt.close();
-            con.close();
-        } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
-        }
-
-         */
     }
 
 }

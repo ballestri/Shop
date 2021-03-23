@@ -1,12 +1,13 @@
 package shop.entity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class Movimento {
+public class Movimento implements Serializable {
 
     @Id
     @Column

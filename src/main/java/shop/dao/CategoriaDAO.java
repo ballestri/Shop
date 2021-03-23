@@ -41,7 +41,9 @@ public class CategoriaDAO {
     }
 
     public static void insertCategoria() {
+
         Categoria categoria = new Categoria(fieldCategoria.getText(), false);
+
         if (checkCategoria(categoria.getCategoria()) > 0) {
             showMessageDialog(null, "Categoria già presente", "Info Dialog", JOptionPane.ERROR_MESSAGE);
         } else if (categoria.getCategoria().isEmpty()) {
