@@ -7,18 +7,16 @@ import java.util.*;
 
 @Entity(name = "Ordine")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name = "ORDINE", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "orderID"),
-        @UniqueConstraint(columnNames = "clientID") })
-
+@Table(name = "ORDINE", uniqueConstraints = { @UniqueConstraint(columnNames = "client_id") })
 public class Ordine implements Serializable {
 
     @Id
-    @Column
+    @Column(name = "order_id")
     private String orderID;
 
-    @Column
-    private String clientID;
+    @ManyToOne
+    @JoinColumn(name="client_id", referencedColumnName="client_id", foreignKey=@ForeignKey(name = "FK_client"))
+    private Cliente cliente;
 
     @Column
     @Temporal(TemporalType.DATE)
@@ -31,8 +29,8 @@ public class Ordine implements Serializable {
     private boolean state;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "orderID")
-    private List<Ordine_details> items = new ArrayList<>();
+    @JoinColumn(name = "order_id")
+    private Set<Ordine_details> items = new HashSet<>();
 
     public String getOrderID() {
         return orderID;
@@ -42,12 +40,12 @@ public class Ordine implements Serializable {
         this.orderID = orderID;
     }
 
-    public String getClientID() {
-        return clientID;
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public void setClientID(String clientID) {
-        this.clientID = clientID;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 
     public Date getDate() {
@@ -72,5 +70,13 @@ public class Ordine implements Serializable {
 
     public void setState(boolean state) {
         this.state = state;
+    }
+
+    public Set<Ordine_details> getItems() {
+        return items;
+    }
+
+    public void setItems(Set<Ordine_details> items) {
+        this.items = items;
     }
 }

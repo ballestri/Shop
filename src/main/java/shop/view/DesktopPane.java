@@ -14,6 +14,9 @@ public class DesktopPane extends JFrame {
 
     private static final int WIDTH = 1575;
     private static final int HEIGHT = 960;
+    private static final String USERNAME="shop";
+    private static final String PASSWORD="shop";
+
 
     public DesktopPane() {
         setTitle("Shop Platform v. 1.0");
@@ -50,8 +53,8 @@ public class DesktopPane extends JFrame {
         em.createNativeQuery("DROP TABLE if exists Credentials", Credentials.class);
         em.getTransaction().begin();
         Credentials credentials = new Credentials();
-        credentials.setUsername("shop");
-        credentials.setPassword("shop");
+        credentials.setUsername(USERNAME);
+        credentials.setPassword(PASSWORD);
 
         if (em.find(Credentials.class, credentials) == null) {
             em.persist(credentials);

@@ -5,13 +5,13 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table
+@Table(name="ARTICOLO")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Articolo implements Serializable {
 
     @Id
+    @Column(name = "articolo_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
     private Integer UID;
 
     @Column(unique = true)
@@ -47,6 +47,10 @@ public class Articolo implements Serializable {
 
     @Column
     private boolean isDeleted;
+
+    //@OneToOne(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+    //@JoinColumn(name = "UID", nullable = false)
+    //private Ordine_details ordineDetails;
 
     public Integer getUID() {
         return UID;
@@ -135,6 +139,8 @@ public class Articolo implements Serializable {
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
     }
+
+
 }
 
 

@@ -3,9 +3,12 @@ package shop.dao;
 import javax.persistence.*;
 
 public class JPAProvider {
-    private static final EntityManagerFactory  entityManagerFactory;//instate of session for connect to database
-    static{
-        entityManagerFactory  = Persistence.createEntityManagerFactory("shop-unit");
+
+    private static final String PERSISTENCE_UNIT = "shop-unit";
+    private static final EntityManagerFactory entityManagerFactory;
+
+    static {
+        entityManagerFactory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT);
     }
 
     public static EntityManagerFactory getEntityManagerFactory() {

@@ -5,44 +5,57 @@ import java.io.Serializable;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-
+@Table(name = "ORDER_DETAILS")
+/*
 @Table(name = "ORDER_DETAILS", uniqueConstraints = {
         @UniqueConstraint(columnNames = "orderID")})
+*/
 public class Ordine_details implements Serializable {
+
+    /*
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer UID;
 
-    @Column
+
+
+    @Column(insertable = false, updatable = false)
     private String articleID;
+
+     */
+
+
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false, referencedColumnName = "order_id",foreignKey=@ForeignKey(name = "FK_order"))
+    private Ordine ordine;
+
+    @Id
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "articolo_id", nullable = false, referencedColumnName = "articolo_id",foreignKey=@ForeignKey(name = "FK_articolo"))
+    private Articolo articolo;
 
     @Column
     private Integer quantity;
 
     @Column
-    private Double price;
+    private Double prezzo;
 
-    @ManyToOne
-    @JoinColumn(name = "orderID", nullable = false)
-    private Ordine ordine;
-
-    public Ordine_details() { }
-
-    public Integer getUID() {
-        return UID;
+    public Ordine getOrdine() {
+        return ordine;
     }
 
-    public void setUID(Integer UID) {
-        this.UID = UID;
+    public void setOrdine(Ordine ordine) {
+        this.ordine = ordine;
     }
 
-    public String getArticleID() {
-        return articleID;
+    public Articolo getArticolo() {
+        return articolo;
     }
 
-    public void setArticleID(String articleID) {
-        this.articleID = articleID;
+    public void setArticolo(Articolo articolo) {
+        this.articolo = articolo;
     }
 
     public Integer getQuantity() {
@@ -53,19 +66,11 @@ public class Ordine_details implements Serializable {
         this.quantity = quantity;
     }
 
-    public Double getPrice() {
-        return price;
+    public Double getPrezzo() {
+        return prezzo;
     }
 
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public Ordine getOrdine() {
-        return ordine;
-    }
-
-    public void setOrdine(Ordine ordine) {
-        this.ordine = ordine;
+    public void setPrezzo(Double prezzo) {
+        this.prezzo = prezzo;
     }
 }

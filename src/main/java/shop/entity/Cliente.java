@@ -10,7 +10,7 @@ public class Cliente implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "client_id")
     private Integer UID;
 
     @Column(unique = true)

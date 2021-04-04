@@ -259,6 +259,7 @@ public class CaricoPane extends AContainer implements ActionListener {
             carico.setCodice(String.valueOf(table.getValueAt(index, 2)));
             carico.setDescrizione(String.valueOf(table.getValueAt(index, 3)));
             carico.setQuantita(Integer.valueOf(String.valueOf(table.getValueAt(index, 4))));
+
             carico.setFornitore(String.valueOf(table.getValueAt(index, 6)));
             carico.setNote(String.valueOf(table.getValueAt(index, 8)));
         }
