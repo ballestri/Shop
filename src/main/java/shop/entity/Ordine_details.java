@@ -3,35 +3,19 @@ package shop.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Entity
+@Entity(name="Ordine_details")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name = "ORDER_DETAILS")
-/*
-@Table(name = "ORDER_DETAILS", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "orderID")})
-*/
+@Table(name = "order_details")
 public class Ordine_details implements Serializable {
 
-    /*
     @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer UID;
-
-
-
-    @Column(insertable = false, updatable = false)
-    private String articleID;
-
-     */
-
-
-    @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
     @JoinColumn(name = "order_id", nullable = false, referencedColumnName = "order_id",foreignKey=@ForeignKey(name = "FK_order"))
     private Ordine ordine;
 
     @Id
+    @PrimaryKeyJoinColumn
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "articolo_id", nullable = false, referencedColumnName = "articolo_id",foreignKey=@ForeignKey(name = "FK_articolo"))
     private Articolo articolo;

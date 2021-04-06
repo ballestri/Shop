@@ -2,6 +2,7 @@ package shop.view;
 
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JTextFieldDateEditor;
+import shop.entity.Articolo;
 import shop.entity.Carico;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
@@ -168,7 +169,7 @@ public class CaricoPane extends AContainer implements ActionListener {
             }
         };
 
-        loadCarico().forEach(carico -> tableModel.addRow(new String[]{String.valueOf(carico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatacarico()), carico.getCodice(), carico.getDescrizione(), String.valueOf(carico.getQuantita()), formatMoney(carico.getImporto()), carico.getFornitore(), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatascadenza()), carico.getNote()}));
+        loadCarico().forEach(carico -> tableModel.addRow(new String[]{String.valueOf(carico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatacarico()), carico.getArticolo().getCodice(), carico.getDescrizione(), String.valueOf(carico.getQuantita()), formatMoney(carico.getImporto()), carico.getFornitore(), (new SimpleDateFormat(DATE_FORMAT)).format(carico.getDatascadenza()), carico.getNote()}));
 
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -256,7 +257,9 @@ public class CaricoPane extends AContainer implements ActionListener {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            carico.setCodice(String.valueOf(table.getValueAt(index, 2)));
+            Articolo articolo= new Articolo();
+            articolo.setCodice(String.valueOf(table.getValueAt(index, 2)));
+            carico.setArticolo(articolo);
             carico.setDescrizione(String.valueOf(table.getValueAt(index, 3)));
             carico.setQuantita(Integer.valueOf(String.valueOf(table.getValueAt(index, 4))));
 

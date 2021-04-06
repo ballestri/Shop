@@ -4,17 +4,19 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 
-
 @Entity(name = "Ordine")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name = "ORDINE", uniqueConstraints = { @UniqueConstraint(columnNames = "client_id") })
+//@Table(name = "ORDINE", uniqueConstraints = { @UniqueConstraint(columnNames = "client_id"),@UniqueConstraint(columnNames = "order_id") })
+@Table
 public class Ordine implements Serializable {
 
     @Id
+    @PrimaryKeyJoinColumn
     @Column(name = "order_id")
     private String orderID;
 
     @ManyToOne
+    @PrimaryKeyJoinColumn
     @JoinColumn(name="client_id", referencedColumnName="client_id", foreignKey=@ForeignKey(name = "FK_client"))
     private Cliente cliente;
 

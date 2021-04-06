@@ -2,6 +2,7 @@ package shop.view;
 
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JTextFieldDateEditor;
+import shop.entity.Articolo;
 import shop.entity.Scarico;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
@@ -197,7 +198,7 @@ public class ScaricoPane extends AContainer implements ActionListener {
             }
         };
 
-        loadScarico().forEach(scarico -> tableModel.addRow(new String[]{String.valueOf(scarico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(scarico.getDatascarico()), scarico.getCodice(), scarico.getDescrizione(), String.valueOf(scarico.getQuantita()), formatMoney(scarico.getImporto()), scarico.getFornitore(), scarico.getNote()}));
+        loadScarico().forEach(scarico -> tableModel.addRow(new String[]{String.valueOf(scarico.getUID()), (new SimpleDateFormat(DATE_FORMAT)).format(scarico.getDatascarico()), scarico.getArticolo().getCodice(), scarico.getDescrizione(), String.valueOf(scarico.getQuantita()), formatMoney(scarico.getImporto()), scarico.getFornitore(), scarico.getNote()}));
 
         table = new JTable(tableModel) {
             public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -283,7 +284,9 @@ public class ScaricoPane extends AContainer implements ActionListener {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            scarico.setCodice(String.valueOf(table.getValueAt(index, 2)));
+            Articolo articolo = new Articolo();
+            articolo.setCodice(String.valueOf(table.getValueAt(index, 2)));
+            scarico.setArticolo(articolo);
             scarico.setDescrizione(String.valueOf(table.getValueAt(index, 3)));
             scarico.setQuantita(Integer.valueOf(String.valueOf(table.getValueAt(index, 4))));
             scarico.setFornitore(String.valueOf(table.getValueAt(index, 6)));

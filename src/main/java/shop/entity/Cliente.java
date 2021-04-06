@@ -9,6 +9,7 @@ import java.io.Serializable;
 public class Cliente implements Serializable {
 
     @Id
+    @PrimaryKeyJoinColumn
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_id")
     private Integer UID;

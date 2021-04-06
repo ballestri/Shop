@@ -5,6 +5,7 @@ import com.toedter.calendar.JTextFieldDateEditor;
 import shop.controller.*;
 import shop.dao.DAOUtils;
 import shop.dao.JPAProvider;
+import shop.entity.Articolo;
 import shop.entity.Carico;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
@@ -71,7 +72,7 @@ public class CaricoPaneUPD extends JFrame implements ActionListener {
         infoPane = new RoundedPanel();
 
         UID = carico.getUID();
-        COD = carico.getCodice();
+        COD = carico.getArticolo().getCodice();
         initComponents();
         setElementsPane(carico);
         add(wrapperPane);
@@ -83,7 +84,7 @@ public class CaricoPaneUPD extends JFrame implements ActionListener {
     }
 
     void setElementsPane(Carico carico) {
-        jcbCodice.setSelectedItem(carico.getCodice());
+        jcbCodice.setSelectedItem(carico.getArticolo().getCodice());
         jcbCodice.setEditable(false);
         jtfDescrizione.setText(carico.getDescrizione());
         jtfDescrizione.setEditable(false);
@@ -346,7 +347,9 @@ public class CaricoPaneUPD extends JFrame implements ActionListener {
 
     public void updateCarico() {
         Carico c = new Carico();
-        c.setCodice(String.valueOf(jcbCodice.getSelectedItem()));
+        Articolo articolo= new Articolo();
+        articolo.setCodice(String.valueOf(jcbCodice.getSelectedItem()));
+        c.setArticolo(articolo);
         c.setDescrizione(jtfDescrizione.getText());
         c.setDatacarico(jdcData.getDate());
         c.setQuantita(Integer.valueOf(jspQuantita.getValue().toString()));
@@ -357,7 +360,7 @@ public class CaricoPaneUPD extends JFrame implements ActionListener {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
         Carico carico = em.find(Carico.class,UID);
-        carico.setCodice(c.getCodice());
+        carico.getArticolo().setCodice(c.getArticolo().getCodice());
         carico.setDescrizione(c.getDescrizione());
         carico.setDatacarico(c.getDatacarico());
         carico.setQuantita(c.getQuantita());
@@ -370,7 +373,7 @@ public class CaricoPaneUPD extends JFrame implements ActionListener {
         em.close();
         tableModel.getDataVector().removeAllElements();
         tableModel.fireTableDataChanged();
-        loadCarico().forEach(ca -> tableModel.addRow(new String[]{String.valueOf(ca.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(ca.getDatacarico()), ca.getCodice(), ca.getDescrizione(), String.valueOf(ca.getQuantita()), formatMoney(ca.getImporto()),ca.getFornitore(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(ca.getDatascadenza()), ca.getNote()}));
+        loadCarico().forEach(ca -> tableModel.addRow(new String[]{String.valueOf(ca.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(ca.getDatacarico()), ca.getArticolo().getCodice(), ca.getDescrizione(), String.valueOf(ca.getQuantita()), formatMoney(ca.getImporto()),ca.getFornitore(), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(ca.getDatascadenza()), ca.getNote()}));
         table.revalidate();
         table.repaint();
         showMessageDialog(null, "Carico aggiornato", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);

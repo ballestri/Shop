@@ -30,10 +30,7 @@ public class GestionePane extends AContainer implements ActionListener {
     protected Font font;
     protected JToolBar toolbar;
     protected JTabbedPane tabbedPane;
-
     public static DefaultTableModel tableModelArticolo,tableModelCliente;
-
-
 
     public GestionePane() {
         initPanel();
@@ -77,7 +74,6 @@ public class GestionePane extends AContainer implements ActionListener {
         UIManager.put("TabbedPane.labelShift", 0);
 
         buildTableModel();
-
 
         tabbedPane = new JTabbedPane(SwingConstants.LEFT);
         tabbedPane.setOpaque(true);
@@ -154,9 +150,7 @@ public class GestionePane extends AContainer implements ActionListener {
                             String.valueOf(article.getScorta()), article.getProvenienza(), (new SimpleDateFormat(DATE_FORMAT)).format(article.getDataIns())}));
                     break;
             }
-
         });
-
     }
 
 
@@ -168,14 +162,11 @@ public class GestionePane extends AContainer implements ActionListener {
             }
         };
 
-
         tableModelCliente = new DefaultTableModel(new Object[][]{},new String[] {"UID", "Cliente ID", "Cognome", "Nome", "Telefono", "Email", "Indirizzo", "Comune"}) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-
-
     }
 
 

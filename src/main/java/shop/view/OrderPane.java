@@ -43,7 +43,7 @@ public class OrderPane extends AContainer implements ActionListener {
     protected RoundedPanel roundedPanel, titleClientePane, filterPane, orderButtonPane;
     private JTextField filterCustomer;
     private JTextField jtfClientID, jtfOrderID;
-    private static JTextField jtfOrderImporto;
+    public static JTextField jtfOrderImporto;
     public static JDateChooser dataOrder;
     public static DefaultTableModel orderTableModel;
     public JTable table, articoloTable;
@@ -420,16 +420,16 @@ public class OrderPane extends AContainer implements ActionListener {
         articoloTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         articoloTable.getColumnModel().getColumn(0).setMinWidth(0);
         articoloTable.getColumnModel().getColumn(0).setMaxWidth(0);
-        articoloTable.getColumnModel().getColumn(1).setMinWidth(120);
-        articoloTable.getColumnModel().getColumn(1).setMaxWidth(120);
-        articoloTable.getColumnModel().getColumn(2).setMinWidth(120);
-        articoloTable.getColumnModel().getColumn(2).setMaxWidth(120);
-        articoloTable.getColumnModel().getColumn(3).setMinWidth(120);
-        articoloTable.getColumnModel().getColumn(3).setMaxWidth(120);
-        articoloTable.getColumnModel().getColumn(4).setMinWidth(120);
-        articoloTable.getColumnModel().getColumn(4).setMaxWidth(120);
-        articoloTable.getColumnModel().getColumn(6).setMinWidth(120);
-        articoloTable.getColumnModel().getColumn(6).setMaxWidth(120);
+        articoloTable.getColumnModel().getColumn(1).setMinWidth(135);
+        articoloTable.getColumnModel().getColumn(1).setMaxWidth(135);
+        articoloTable.getColumnModel().getColumn(2).setMinWidth(135);
+        articoloTable.getColumnModel().getColumn(2).setMaxWidth(135);
+        articoloTable.getColumnModel().getColumn(3).setMinWidth(135);
+        articoloTable.getColumnModel().getColumn(3).setMaxWidth(135);
+        articoloTable.getColumnModel().getColumn(4).setMinWidth(135);
+        articoloTable.getColumnModel().getColumn(4).setMaxWidth(135);
+        articoloTable.getColumnModel().getColumn(6).setMinWidth(135);
+        articoloTable.getColumnModel().getColumn(6).setMaxWidth(135);
         articoloTable.getColumnModel().getColumn(8).setMinWidth(155);
         articoloTable.getColumnModel().getColumn(8).setMaxWidth(155);
         articoloTable.getColumnModel().getColumn(9).setMinWidth(155);
@@ -517,6 +517,8 @@ public class OrderPane extends AContainer implements ActionListener {
         colModel.getColumn(2).setMaxWidth(100);
         colModel.getColumn(3).setMinWidth(100);
         colModel.getColumn(3).setMinWidth(100);
+        colModel.getColumn(4).setMinWidth(140);
+        colModel.getColumn(4).setMinWidth(140);
 
         orderTable.setBorder(BorderFactory.createEmptyBorder());
         colModel.getColumn(3).setCellEditor(new SpinnerEditor());
@@ -574,10 +576,20 @@ public class OrderPane extends AContainer implements ActionListener {
         articoloOrderWrapper.add(orderButtonPane, BorderLayout.SOUTH);
 
         btn_insert.addActionListener(e -> {
-            if (jtfClientID.getText().isEmpty() || jtfOrderID.getText().isEmpty()) {
+
+            if (jtfClientID.getText().isEmpty() || jtfOrderID.getText().isEmpty() || !(table.getSelectedRow() >= 0)) {
                 showMessageDialog(null, "Selezionare un cliente", "Info Dialog", JOptionPane.ERROR_MESSAGE);
-            } else
-                insertOrder(jtfOrderID.getText(), jtfClientID.getText());
+            } else {
+
+                if (orderTableModel.getRowCount() == 0) {
+                    showMessageDialog(null, "Inserire gli ordini", "Info Dialog", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    insertOrder(jtfOrderID.getText(), jtfClientID.getText(),dataOrder.getDate());
+                    table.getSelectionModel().clearSelection();
+                    jtfOrderID.setText(null);
+                    jtfClientID.setText(null);
+                }
+            }
         });
         btn_remove.addActionListener(e -> removeArticleOrder());
     }
@@ -659,7 +671,6 @@ public class OrderPane extends AContainer implements ActionListener {
         gc.anchor = GridBagConstraints.LINE_START;
         gc.insets = new Insets(2, 10, 2, 10);
         orderInfoPane.add(lblOrderDate, gc);
-
 
         // second column//
         gc.anchor = GridBagConstraints.WEST;

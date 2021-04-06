@@ -6,7 +6,7 @@ import java.util.Date;
 
 @Entity
 @Table
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@IdClass(Scarico.class)
 public class Scarico implements Serializable {
 
     @Id
@@ -14,8 +14,9 @@ public class Scarico implements Serializable {
     @Column
     private Integer UID;
 
-    @Column
-    private String codice;
+    @ManyToOne
+    @JoinColumn(name="codice", referencedColumnName="codice", foreignKey=@ForeignKey(name = "FK_scarico_codice"))
+    private Articolo articolo;
 
     @Column
     private String descrizione;
@@ -46,12 +47,12 @@ public class Scarico implements Serializable {
         this.UID = UID;
     }
 
-    public String getCodice() {
-        return codice;
+    public Articolo getArticolo() {
+        return articolo;
     }
 
-    public void setCodice(String codice) {
-        this.codice = codice;
+    public void setArticolo(Articolo articolo) {
+        this.articolo = articolo;
     }
 
     public String getDescrizione() {

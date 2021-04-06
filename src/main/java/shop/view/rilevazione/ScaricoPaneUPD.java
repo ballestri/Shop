@@ -5,6 +5,7 @@ import com.toedter.calendar.JTextFieldDateEditor;
 import shop.controller.*;
 import shop.dao.DAOUtils;
 import shop.dao.JPAProvider;
+import shop.entity.Articolo;
 import shop.entity.Scarico;
 import shop.utils.DesktopRender;
 import shop.utils.RoundedPanel;
@@ -75,7 +76,7 @@ public class ScaricoPaneUPD extends JFrame implements ActionListener {
         infoPane = new RoundedPanel();
 
         UID = scarico.getUID();
-        COD = scarico.getCodice();
+        COD = scarico.getArticolo().getCodice();
         initComponents();
         setElementsPane(scarico);
         add(wrapperPane);
@@ -87,7 +88,7 @@ public class ScaricoPaneUPD extends JFrame implements ActionListener {
     }
 
     void setElementsPane(Scarico scarico) {
-        jcbCodice.setSelectedItem(scarico.getCodice());
+        jcbCodice.setSelectedItem(scarico.getArticolo().getCodice());
         jcbCodice.setEditable(false);
         jtfDescrizione.setText(scarico.getDescrizione());
         jtfDescrizione.setEditable(false);
@@ -317,7 +318,9 @@ public class ScaricoPaneUPD extends JFrame implements ActionListener {
 
     public void updateScarico() {
         Scarico s = new Scarico();
-        s.setCodice(String.valueOf(jcbCodice.getSelectedItem()));
+        Articolo articolo= new Articolo();
+        articolo.setCodice(String.valueOf(jcbCodice.getSelectedItem()));
+        s.setArticolo(articolo);
         s.setDescrizione(jtfDescrizione.getText());
         s.setDatascarico(jdcData.getDate());
         s.setQuantita(Integer.valueOf(jspQuantita.getValue().toString()));
@@ -327,7 +330,9 @@ public class ScaricoPaneUPD extends JFrame implements ActionListener {
         EntityManager em = JPAProvider.getEntityManagerFactory().createEntityManager();
         em.getTransaction().begin();
         Scarico scarico = em.find(Scarico.class, UID);
-        scarico.setCodice(s.getCodice());
+        //scarico.setCodice(s.getCodice());
+        scarico.getArticolo().setCodice(s.getArticolo().getCodice());
+
         scarico.setDescrizione(s.getDescrizione());
         scarico.setDatascarico(s.getDatascarico());
         scarico.setQuantita(s.getQuantita());
@@ -340,7 +345,7 @@ public class ScaricoPaneUPD extends JFrame implements ActionListener {
 
         tableModel.getDataVector().removeAllElements();
         tableModel.fireTableDataChanged();
-        loadScarico().forEach(sc -> tableModel.addRow(new String[]{String.valueOf(sc.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(sc.getDatascarico()), sc.getCodice(), sc.getDescrizione(), String.valueOf(sc.getQuantita()), formatMoney(sc.getImporto()), sc.getFornitore(), sc.getNote()}));
+        loadScarico().forEach(sc -> tableModel.addRow(new String[]{String.valueOf(sc.getUID()), (new SimpleDateFormat(DesktopRender.DATE_FORMAT)).format(sc.getDatascarico()), sc.getArticolo().getCodice(), sc.getDescrizione(), String.valueOf(sc.getQuantita()), formatMoney(sc.getImporto()), sc.getFornitore(), sc.getNote()}));
         table.revalidate();
         table.repaint();
         showMessageDialog(null, "Scarico aggiornato", "Info Dialog", JOptionPane.INFORMATION_MESSAGE);

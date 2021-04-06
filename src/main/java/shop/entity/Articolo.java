@@ -5,16 +5,18 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name="ARTICOLO")
+@Table(name="ARTICOLO", uniqueConstraints = { @UniqueConstraint(columnNames = "codice") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Articolo implements Serializable {
 
     @Id
+    @PrimaryKeyJoinColumn
     @Column(name = "articolo_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer UID;
 
-    @Column(unique = true)
+    @Column
+    @PrimaryKeyJoinColumn
     private String codice;
 
     @Column(nullable = false)
